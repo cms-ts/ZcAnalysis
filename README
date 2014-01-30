@@ -1,1 +1,2 @@
 The following CMSSW packages are required in order to compile and run the ZcAnalysis plugin:
+ PhysicsTools/PatAlgos
