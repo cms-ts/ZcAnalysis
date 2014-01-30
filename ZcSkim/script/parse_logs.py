@@ -9,7 +9,7 @@ import math
 #channel = "TTbar"
 #channel = 'WW'
 
-path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v01/"
+path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v02/"
 
 w = {'Wj'        : 31200./57709905.,
      'WW'        : 54.838/10000431.,
@@ -32,8 +32,8 @@ def main():
 
     channel = sys.argv[1]
 
-    pattern = "Weighted yield (tagged)    ="
     #pattern = "Weighted yield (inclusive) ="
+    pattern = "Weighted yield (tagged)    ="
 
     is_tautau = 0
     if ( channel=="Ztautau"):
@@ -46,7 +46,6 @@ def main():
 
     p = subprocess.Popen(['ls', path+channel],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = p.communicate()
-    #print output
 
     n_ele,err_ele,n_muo,err_muo = 0.,0.,0.,0.
 
@@ -57,6 +56,7 @@ def main():
         counter = 0
 
         for line in f.readlines():
+
             if line.find(pattern) > -1:
                 counter += 1
                 if counter==1:
@@ -65,21 +65,22 @@ def main():
                         n_ele   += float(line.split()[4])
                         err_ele += float(line.split()[5])
                     else:
-                        n_ele   += float(line.split()[5])
-                        err_ele += float(line.split()[6])
+                        n_ele   += float(line.split()[4])
+                        err_ele += float(line.split()[5])
 
                 if counter==2:
                     print counter, line.split()
                     if not is_tautau:
-                        n_muo   += float(line.split()[6])
-                        err_muo += float(line.split()[7])
+                        n_muo   += float(line.split()[4])
+                        err_muo += float(line.split()[5])
                     else:
-                        n_muo   += float(line.split()[7])
-                        err_muo += float(line.split()[8])
+                        n_muo   += float(line.split()[4])
+                        err_muo += float(line.split()[5])
                         
 
         f.close()
 
+    #print  n_ele,err_ele,n_muo,err_muo
     print "\n"
     print "electron channel: %f +- %f" % (n_ele*scale*lumi_e,math.sqrt(err_ele)*scale*lumi_e)
     print "muon channel:     %f +- %f" % (n_muo*scale*lumi_mu,math.sqrt(err_muo)*scale*lumi_mu)

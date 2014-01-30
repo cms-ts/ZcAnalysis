@@ -28,6 +28,15 @@ process.source = cms.Source("PoolSource",
                 'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/DYJetsToLL/patTuple_1013_2_2yI.root',
                 'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/DYJetsToLL/patTuple_1014_2_nRc.root',
                 #
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_81_1_C9w.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_82_2_NMq.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_83_2_cyK.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_84_2_FH1.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_85_1_eTB.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_86_1_8kl.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_87_1_VEi.root',
+                #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/TTbar/patTuple_88_2_KvV.root',
+                #
                 #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/DoubleElectron_2012D_22Jan13/patTuple_941_2_xru.root',
                 #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/DoubleElectron_2012D_22Jan13/patTuple_942_1_D4N.root',
                 #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/DoubleElectron_2012D_22Jan13/patTuple_943_1_UsT.root',
@@ -61,8 +70,15 @@ process.anaMuo = cms.EDProducer('ZcAnalyzer',
         lepton = cms.untracked.string("muon")
 )
 
+process.anaEleMuo = cms.EDProducer('ZcAnalyzer',
+        pileupMC = cms.untracked.string("S10"),
+        pileupDT = cms.untracked.string("em"),
+        lepton = cms.untracked.string("electron+muon")
+)
+
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('ZcAnalyzer.root')
 )
-process.p = cms.Path(process.anaEle*process.anaMuo)
+
+process.p = cms.Path(process.anaEle*process.anaMuo*process.anaEleMuo)

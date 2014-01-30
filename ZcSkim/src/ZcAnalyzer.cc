@@ -34,6 +34,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -163,7 +164,6 @@ private:
 
     }
 
-
     return weight;
 
   };
@@ -187,8 +187,8 @@ private:
 
     double jetPtNew = jetPt;
 
-    if (syst == 0) jetPtNew = jetPtGen + correctionFactor[index] * (jetPt-jetPtGen);
-    if (syst == +1) jetPtNew = jetPtGen + correctionFactorUp[index] * (jetPt-jetPtGen);
+    if (syst ==  0) jetPtNew = jetPtGen + correctionFactor[index]     * (jetPt-jetPtGen);
+    if (syst == +1) jetPtNew = jetPtGen + correctionFactorUp[index]   * (jetPt-jetPtGen);
     if (syst == -1) jetPtNew = jetPtGen + correctionFactorDown[index] * (jetPt-jetPtGen);
 
     return fmax(0.0, jetPtNew/jetPt);
@@ -230,13 +230,13 @@ private:
   table* LtEffT_;
   table* LtEffL_;
 
-  int    n_ztautau[2][2];
-  double w_ztautau[2][2];
-  double w2_ztautau[2][2];
+  int    n_ztautau[2];
+  double w_ztautau[2];
+  double w2_ztautau[2];
 
-  int    n_events[2][2];
-  double w_events[2][2];
-  double w2_events[2][2];
+  int    n_events[2];
+  double w_events[2];
+  double w2_events[2];
 
 
   // ================================================================================================
@@ -245,181 +245,167 @@ private:
 
   // --- Z+jets
 
-  TH1F*     h_M_ee;
-  TH1F*     h_M_ee_b;
-  TH1F*     h_M_ee_c;
-  TH1F*     h_M_ee_l;
-  TH1F*     h_M_ee_tt;
-  TH1F*     h_M_mm;
-  TH1F*     h_M_mm_b;
-  TH1F*     h_M_mm_c;
-  TH1F*     h_M_mm_l;
-  TH1F*     h_M_mm_tt;
+  TH1F* h_M;
+  TH1F* h_M_b;
+  TH1F* h_M_c;
+  TH1F* h_M_l;
+  TH1F* h_M_tt;
 
-  TH1F*     h_njet_ee;
-  TH1F*     h_njet_ee_b;
-  TH1F*     h_njet_ee_c;
-  TH1F*     h_njet_ee_l;
-  TH1F*     h_njet_ee_tt;
-  TH1F*     h_njet_mm;
-  TH1F*     h_njet_mm_b;
-  TH1F*     h_njet_mm_c;
-  TH1F*     h_njet_mm_l;
-  TH1F*     h_njet_mm_tt;
+  TH1F* h_Pt;
+  TH1F* h_Pt_b;
+  TH1F* h_Pt_c;
+  TH1F* h_Pt_l;
+  TH1F* h_Pt_tt;
 
-  TH1F*     h_MET_ee;
-  TH1F*     h_MET_ee_b;
-  TH1F*     h_MET_ee_c;
-  TH1F*     h_MET_ee_l;
-  TH1F*     h_MET_ee_tt;
-  TH1F*     h_MET_mm;
-  TH1F*     h_MET_mm_b;
-  TH1F*     h_MET_mm_c;
-  TH1F*     h_MET_mm_l;
-  TH1F*     h_MET_mm_tt;
+  TH1F* h_njet;
+  TH1F* h_njet_b;
+  TH1F* h_njet_c;
+  TH1F* h_njet_l;
+  TH1F* h_njet_tt;
 
-  TH1F*     h_sMET_ee;
-  TH1F*     h_sMET_ee_b;
-  TH1F*     h_sMET_ee_c;
-  TH1F*     h_sMET_ee_l;
-  TH1F*     h_sMET_ee_tt;
-  TH1F*     h_sMET_mm;
-  TH1F*     h_sMET_mm_b;
-  TH1F*     h_sMET_mm_c;
-  TH1F*     h_sMET_mm_l;
-  TH1F*     h_sMET_mm_tt;
+  TH1F* h_MET;
+  TH1F* h_MET_b;
+  TH1F* h_MET_c;
+  TH1F* h_MET_l;
+  TH1F* h_MET_tt;
 
-  TH1F*     h_CSV_ee;
-  TH1F*     h_CSV_ee_b;
-  TH1F*     h_CSV_ee_c;
-  TH1F*     h_CSV_ee_b_split;
-  TH1F*     h_CSV_ee_c_split;
-  TH1F*     h_CSV_ee_l;
-  TH1F*     h_CSV_ee_tt;
-  TH1F*     h_CSV_mm;
-  TH1F*     h_CSV_mm_b;
-  TH1F*     h_CSV_mm_c;
-  TH1F*     h_CSV_mm_b_split;
-  TH1F*     h_CSV_mm_c_split;
-  TH1F*     h_CSV_mm_l;
-  TH1F*     h_CSV_mm_tt;
+  TH1F* h_sMET;
+  TH1F* h_sMET_b;
+  TH1F* h_sMET_c;
+  TH1F* h_sMET_l;
+  TH1F* h_sMET_tt;
 
-  TH1F*     h_BJP_ee;
-  TH1F*     h_BJP_ee_b;
-  TH1F*     h_BJP_ee_c;
-  TH1F*     h_BJP_ee_l;
-  TH1F*     h_BJP_ee_tt;
-  TH1F*     h_BJP_mm;
-  TH1F*     h_BJP_mm_b;
-  TH1F*     h_BJP_mm_c;
-  TH1F*     h_BJP_mm_l;
-  TH1F*     h_BJP_mm_tt;
+  TH1F* h_CSV;
+  TH1F* h_CSV_b;
+  TH1F* h_CSV_c;
+  TH1F* h_CSV_b_split;
+  TH1F* h_CSV_c_split;
+  TH1F* h_CSV_l;
+  TH1F* h_CSV_tt;
 
-  TH1F*     h_CSV_all_ee;
-  TH1F*     h_CSV_all_ee_b;
-  TH1F*     h_CSV_all_ee_c;
-  TH1F*     h_CSV_all_ee_l;
-  TH1F*     h_CSV_all_ee_tt;
-  TH1F*     h_CSV_all_mm;
-  TH1F*     h_CSV_all_mm_b;
-  TH1F*     h_CSV_all_mm_c;
-  TH1F*     h_CSV_all_mm_l;
-  TH1F*     h_CSV_all_mm_tt;
+  TH1F* h_CSV_all;
+  TH1F* h_CSV_all_b;
+  TH1F* h_CSV_all_c;
+  TH1F* h_CSV_all_l;
+  TH1F* h_CSV_all_tt;
 
-  TH2F*     h_eff_b;
-  TH2F*     h_eff_c;
-  TH2F*     h_eff_l;
+  TH1F* h_BJP;
+  TH1F* h_BJP_b;
+  TH1F* h_BJP_c;
+  TH1F* h_BJP_l;
+  TH1F* h_BJP_tt;
+
+  TH2F* h_eff_b;
+  TH2F* h_eff_c;
+  TH2F* h_eff_l;
 
 
   // --- Z+c
 
-  TH1F*     hc_M_ee;
-  TH1F*     hc_M_ee_b;
-  TH1F*     hc_M_ee_c;
-  TH1F*     hc_M_ee_l;
-  TH1F*     hc_M_ee_tt;
-  TH1F*     hc_M_mm;
-  TH1F*     hc_M_mm_b;
-  TH1F*     hc_M_mm_c;
-  TH1F*     hc_M_mm_l;
-  TH1F*     hc_M_mm_tt;
+  TH1F* hc_M;
+  TH1F* hc_M_b;
+  TH1F* hc_M_c;
+  TH1F* hc_M_l;
+  TH1F* hc_M_tt;
 
-  TH1F*     hc_njet_ee;
-  TH1F*     hc_njet_ee_b;
-  TH1F*     hc_njet_ee_c;
-  TH1F*     hc_njet_ee_l;
-  TH1F*     hc_njet_ee_tt;
-  TH1F*     hc_njet_mm;
-  TH1F*     hc_njet_mm_b;
-  TH1F*     hc_njet_mm_c;
-  TH1F*     hc_njet_mm_l;
-  TH1F*     hc_njet_mm_tt;
+  TH1F* hc_Pt;
+  TH1F* hc_Pt_b;
+  TH1F* hc_Pt_c;
+  TH1F* hc_Pt_l;
+  TH1F* hc_Pt_tt;
 
-  TH1F*     hc_MET_ee;
-  TH1F*     hc_MET_ee_b;
-  TH1F*     hc_MET_ee_c;
-  TH1F*     hc_MET_ee_l;
-  TH1F*     hc_MET_ee_tt;
-  TH1F*     hc_MET_mm;
-  TH1F*     hc_MET_mm_b;
-  TH1F*     hc_MET_mm_c;
-  TH1F*     hc_MET_mm_l;
-  TH1F*     hc_MET_mm_tt;
+  TH1F* hc_njet;
+  TH1F* hc_njet_b;
+  TH1F* hc_njet_c;
+  TH1F* hc_njet_l;
+  TH1F* hc_njet_tt;
 
-  TH1F*     hc_sMET_ee;
-  TH1F*     hc_sMET_ee_b;
-  TH1F*     hc_sMET_ee_c;
-  TH1F*     hc_sMET_ee_l;
-  TH1F*     hc_sMET_ee_tt;
-  TH1F*     hc_sMET_mm;
-  TH1F*     hc_sMET_mm_b;
-  TH1F*     hc_sMET_mm_c;
-  TH1F*     hc_sMET_mm_l;
-  TH1F*     hc_sMET_mm_tt;
+  TH1F* hc_ncjet;
+  TH1F* hc_ncjet_b;
+  TH1F* hc_ncjet_c;
+  TH1F* hc_ncjet_l;
+  TH1F* hc_ncjet_tt;
 
-  TH1F*     hc_CSV_ee;
-  TH1F*     hc_CSV_ee_b;
-  TH1F*     hc_CSV_ee_c;
-  TH1F*     hc_CSV_ee_l;
-  TH1F*     hc_CSV_ee_b_split;
-  TH1F*     hc_CSV_ee_c_split;
-  TH1F*     hc_CSV_ee_tt;
-  TH1F*     hc_CSV_mm;
-  TH1F*     hc_CSV_mm_b;
-  TH1F*     hc_CSV_mm_c;
-  TH1F*     hc_CSV_mm_b_split;
-  TH1F*     hc_CSV_mm_c_split;
-  TH1F*     hc_CSV_mm_l;
-  TH1F*     hc_CSV_mm_tt;
+  TH1F* hc_MET;
+  TH1F* hc_MET_b;
+  TH1F* hc_MET_c;
+  TH1F* hc_MET_l;
+  TH1F* hc_MET_tt;
 
-  TH1F*     hc_BJP_ee;
-  TH1F*     hc_BJP_ee_b;
-  TH1F*     hc_BJP_ee_c;
-  TH1F*     hc_BJP_ee_l;
-  TH1F*     hc_BJP_ee_tt;
-  TH1F*     hc_BJP_mm;
-  TH1F*     hc_BJP_mm_b;
-  TH1F*     hc_BJP_mm_c;
-  TH1F*     hc_BJP_mm_l;
-  TH1F*     hc_BJP_mm_tt;
+  TH1F* hc_sMET;
+  TH1F* hc_sMET_b;
+  TH1F* hc_sMET_c;
+  TH1F* hc_sMET_l;
+  TH1F* hc_sMET_tt;
 
-  TH1F*     hc_CSV_all_ee;
-  TH1F*     hc_CSV_all_ee_b;
-  TH1F*     hc_CSV_all_ee_c;
-  TH1F*     hc_CSV_all_ee_l;
-  TH1F*     hc_CSV_all_ee_tt;
-  TH1F*     hc_CSV_all_mm;
-  TH1F*     hc_CSV_all_mm_b;
-  TH1F*     hc_CSV_all_mm_c;
-  TH1F*     hc_CSV_all_mm_l;
-  TH1F*     hc_CSV_all_mm_tt;
+  TH1F* hc_CSV;
+  TH1F* hc_CSV_b;
+  TH1F* hc_CSV_c;
+  TH1F* hc_CSV_l;
+  TH1F* hc_CSV_b_split;
+  TH1F* hc_CSV_c_split;
+  TH1F* hc_CSV_tt;
 
-  TH2F*     hc_CSVL_eff_b;
-  TH2F*     hc_CSVL_eff_c;
-  TH2F*     hc_CSVL_eff_l;
-  TH2F*     hc_CSVT_eff_b;
-  TH2F*     hc_CSVT_eff_c;
-  TH2F*     hc_CSVT_eff_l;
+  TH1F* hc_CSV_ctag;
+  TH1F* hc_CSV_ctag_b;
+  TH1F* hc_CSV_ctag_c;
+  TH1F* hc_CSV_ctag_l;
+  TH1F* hc_CSV_ctag_tt;
+
+  TH1F* hc_CSV_all;
+  TH1F* hc_CSV_all_b;
+  TH1F* hc_CSV_all_c;
+  TH1F* hc_CSV_all_l;
+  TH1F* hc_CSV_all_tt;
+
+  TH1F* hc_BJP;
+  TH1F* hc_BJP_b;
+  TH1F* hc_BJP_c;
+  TH1F* hc_BJP_l;
+  TH1F* hc_BJP_tt;
+
+  TH1F* hc_BJP_ctag;
+  TH1F* hc_BJP_ctag_b;
+  TH1F* hc_BJP_ctag_c;
+  TH1F* hc_BJP_ctag_l;
+  TH1F* hc_BJP_ctag_tt;
+
+  TH1F* hc_JPB;
+  TH1F* hc_JPB_b;
+  TH1F* hc_JPB_c;
+  TH1F* hc_JPB_l;
+  TH1F* hc_JPB_tt;
+
+  TH1F* hc_CHP;
+  TH1F* hc_CHP_b;
+  TH1F* hc_CHP_c;
+  TH1F* hc_CHP_l;
+  TH1F* hc_CHP_tt;
+
+  TH1F* hc_CHE;
+  TH1F* hc_CHE_b;
+  TH1F* hc_CHE_c;
+  TH1F* hc_CHE_l;
+  TH1F* hc_CHE_tt;
+
+  TH1F* hc_svxM;
+  TH1F* hc_svxM_b;
+  TH1F* hc_svxM_c;
+  TH1F* hc_svxM_l;
+  TH1F* hc_svxM_tt;
+
+  TH1F* hc_svxEfr;
+  TH1F* hc_svxEfr_b;
+  TH1F* hc_svxEfr_c;
+  TH1F* hc_svxEfr_l;
+  TH1F* hc_svxEfr_tt;
+
+  TH2F* hc_CSVL_eff_b;
+  TH2F* hc_CSVL_eff_c;
+  TH2F* hc_CSVL_eff_l;
+  TH2F* hc_CSVT_eff_b;
+  TH2F* hc_CSVT_eff_c;
+  TH2F* hc_CSVT_eff_l;
 
 };
 
@@ -445,7 +431,7 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   lepton_ = iConfig.getUntrackedParameter < std::string > ("lepton", "electron");
   par_ = iConfig.getUntrackedParameter <double> ("JEC", 0);
   par2_ = iConfig.getUntrackedParameter <double> ("JER", 0);
-  path_ = iConfig.getUntrackedParameter < std::string > ("path", "/gpfs/cms/users/casarsa/analysis/CMSSW_5_3_11_patch6/src/ZcAnalysis/ZcSkim/SF");
+  path_ = iConfig.getUntrackedParameter < std::string > ("path", "/gpfs/cms/users/casarsa/analysis/Zc/work/SF");
   icut_ = iConfig.getUntrackedParameter <unsigned int> ("icut", 0);
   usePartonFlavour_ = iConfig.getUntrackedParameter <bool> ("usePartonFlavour", false);
   pcut_ = iConfig.getUntrackedParameter <bool> ("pcut", false);
@@ -454,226 +440,475 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   // now do what ever initialization is needed
   edm::Service < TFileService > fs;
 
-  h_M_ee    = fs->make < TH1F > ("h_M_ee",    "ee mass;M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_ee->Sumw2();
-  h_M_ee_b  = fs->make < TH1F > ("h_M_ee_b",  "ee mass (b);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_ee_b->Sumw2();
-  h_M_ee_c  = fs->make < TH1F > ("h_M_ee_c",  "ee mass (c);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_ee_c->Sumw2();
-  h_M_ee_l  = fs->make < TH1F > ("h_M_ee_l",  "ee mass (dusg);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_ee_l->Sumw2();
-  h_M_ee_tt = fs->make < TH1F > ("h_M_ee_tt", "ee mass (Z#rightarrow#tau#tau);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_ee_tt->Sumw2();
 
-  h_M_mm    = fs->make < TH1F > ("h_M_mm",    "#mu#mu mass;M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_mm->Sumw2();
-  h_M_mm_b  = fs->make < TH1F > ("h_M_mm_b",  "#mu#mu mass (b);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_mm_b->Sumw2();
-  h_M_mm_c  = fs->make < TH1F > ("h_M_mm_c",  "#mu#mu mass (c);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_mm_c->Sumw2();
-  h_M_mm_l  = fs->make < TH1F > ("h_M_mm_l",  "#mu#mu mass (dusg);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_mm_l->Sumw2();
-  h_M_mm_tt = fs->make < TH1F > ("h_M_mm_tt", "#mu#mu mass (Z#rightarrow#tau#tau);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  h_M_mm_tt->Sumw2();
-
-  h_njet_ee    = fs->make < TH1F > ("h_njet_ee",    "ee jet multiplicity;N_{jet}", 10, 0., 10.);
-  h_njet_ee_b  = fs->make < TH1F > ("h_njet_ee_b",  "ee jet multiplicity (b);N_{jet}", 10, 0., 10.);
-  h_njet_ee_c  = fs->make < TH1F > ("h_njet_ee_c",  "ee jet multiplicity (c);N_{jet}", 10, 0., 10.);
-  h_njet_ee_l  = fs->make < TH1F > ("h_njet_ee_l",  "ee jet multiplicity (dusg);N_{jet}", 10, 0., 10.);
-  h_njet_ee_tt = fs->make < TH1F > ("h_njet_ee_tt", "ee jet multiplicity (Z#rightarrow#tau#tau);N_{jet}", 10, 0., 10.);
-
-  h_njet_mm    = fs->make < TH1F > ("h_njet_mm",    "#mu#mu jet multiplicity;N_{jet}", 10, 0., 10.);
-  h_njet_mm_b  = fs->make < TH1F > ("h_njet_mm_b",  "#mu#mu jet multiplicity (b);N_{jet}", 10, 0., 10.);
-  h_njet_mm_c  = fs->make < TH1F > ("h_njet_mm_c",  "#mu#mu jet multiplicity (c);N_{jet}", 10, 0., 10.);
-  h_njet_mm_l  = fs->make < TH1F > ("h_njet_mm_l",  "#mu#mu jet multiplicity (dusg);N_{jet}", 10, 0., 10.);
-  h_njet_mm_tt = fs->make < TH1F > ("h_njet_mm_tt", "#mu#mu jet multiplicity (Z#rightarrow#tau#tau);N_{jet}", 10, 0., 10.);
-
-  h_MET_ee    = fs->make < TH1F > ("h_MET_ee",    "ee MET;MET [GeV]", 100, 0., 250.);
-  h_MET_ee_b  = fs->make < TH1F > ("h_MET_ee_b ", "ee MET (b);MET [GeV]", 100, 0., 250.);
-  h_MET_ee_c  = fs->make < TH1F > ("h_MET_ee_c ", "ee MET (c);MET [GeV]", 100, 0., 250.);
-  h_MET_ee_l  = fs->make < TH1F > ("h_MET_ee_l ", "ee MET (dusg);MET [GeV]", 100, 0., 250.);
-  h_MET_ee_tt = fs->make < TH1F > ("h_MET_ee_tt", "ee MET (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
-
-  h_MET_mm    = fs->make < TH1F > ("h_MET_mm",    "#mu#mu MET;MET [GeV]", 100, 0., 250.);
-  h_MET_mm_b  = fs->make < TH1F > ("h_MET_mm_b ", "#mu#mu MET (b);MET [GeV]", 100, 0., 250.);
-  h_MET_mm_c  = fs->make < TH1F > ("h_MET_mm_c ", "#mu#mu MET (c);MET [GeV]", 100, 0., 250.);
-  h_MET_mm_l  = fs->make < TH1F > ("h_MET_mm_l ", "#mu#mu MET (dusg);MET [GeV]", 100, 0., 250.);
-  h_MET_mm_tt = fs->make < TH1F > ("h_MET_mm_tt", "#mu#mu MET (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
-
-  h_sMET_ee    = fs->make < TH1F > ("h_sMET_ee",    "ee MET significance;MET [GeV]", 100, 0., 250.);
-  h_sMET_ee_b  = fs->make < TH1F > ("h_sMET_ee_b ", "ee MET significance (b);MET [GeV]", 100, 0., 250.);
-  h_sMET_ee_c  = fs->make < TH1F > ("h_sMET_ee_c ", "ee MET significance (c);MET [GeV]", 100, 0., 250.);
-  h_sMET_ee_l  = fs->make < TH1F > ("h_sMET_ee_l ", "ee MET significance (dusg);MET [GeV]", 100, 0., 250.);
-  h_sMET_ee_tt = fs->make < TH1F > ("h_sMET_ee_tt", "ee MET significance (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
-
-  h_sMET_mm    = fs->make < TH1F > ("h_sMET_mm",    "#mu#mu MET significance;MET [GeV]", 100, 0., 250.);
-  h_sMET_mm_b  = fs->make < TH1F > ("h_sMET_mm_b ", "#mu#mu MET significance (b);MET [GeV]", 100, 0., 250.);
-  h_sMET_mm_c  = fs->make < TH1F > ("h_sMET_mm_c ", "#mu#mu MET significance (c);MET [GeV]", 100, 0., 250.);
-  h_sMET_mm_l  = fs->make < TH1F > ("h_sMET_mm_l ", "#mu#mu MET significance (dusg);MET [GeV]", 100, 0., 250.);
-  h_sMET_mm_tt = fs->make < TH1F > ("h_sMET_mm_tt", "#mu#mu MET significance (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
-
-  h_CSV_ee    = fs->make < TH1F > ("h_CSV_ee",    "ee CSV discriminant;CSV", 100, 0., 1.);
-  h_CSV_ee_b  = fs->make < TH1F > ("h_CSV_ee_b",  "ee CSV discriminant (b);CSV", 100, 0., 1.);
-  h_CSV_ee_c  = fs->make < TH1F > ("h_CSV_ee_c",  "ee CSV discriminant (c);CSV", 100, 0., 1.);
-  h_CSV_ee_b_split  = fs->make < TH1F > ("h_CSV_ee_b_split",  "ee CSV discriminant (g->bb);CSV", 100, 0., 1.);
-  h_CSV_ee_c_split  = fs->make < TH1F > ("h_CSV_ee_c_split",  "ee CSV discriminant (g->cc);CSV", 100, 0., 1.);
-  h_CSV_ee_l  = fs->make < TH1F > ("h_CSV_ee_l",  "ee CSV discriminant (dusg);CSV", 100, 0., 1.);
-  h_CSV_ee_tt = fs->make < TH1F > ("h_CSV_ee_tt", "ee CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
-
-  h_CSV_mm    = fs->make < TH1F > ("h_CSV_mm",    "#mu#mu  CSV discriminant;CSV", 100, 0., 1.);
-  h_CSV_mm_b  = fs->make < TH1F > ("h_CSV_mm_b",  "#mu#mu  CSV discriminant (b);CSV", 100, 0., 1.);
-  h_CSV_mm_c  = fs->make < TH1F > ("h_CSV_mm_c",  "#mu#mu  CSV discriminant (c);CSV", 100, 0., 1.);
-  h_CSV_mm_b_split  = fs->make < TH1F > ("h_CSV_mm_b_split",  "#mu#mu CSV discriminant (g->bb);CSV", 100, 0., 1.);
-  h_CSV_mm_c_split  = fs->make < TH1F > ("h_CSV_mm_c_split",  "#mu#mu CSV discriminant (g->cc);CSV", 100, 0., 1.);
-  h_CSV_mm_l  = fs->make < TH1F > ("h_CSV_mm_l",  "#mu#mu  CSV discriminant (dusg);CSV", 100, 0., 1.);
-  h_CSV_mm_tt = fs->make < TH1F > ("h_CSV_mm_tt", "#mu#mu  CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
-
-  h_CSV_all_ee    = fs->make < TH1F > ("h_CSV_all_ee",    "ee CSV discriminant;CSV", 100, 0., 1.);
-  h_CSV_all_ee_b  = fs->make < TH1F > ("h_CSV_all_ee_b",  "ee CSV discriminant (b);CSV", 100, 0., 1.);
-  h_CSV_all_ee_c  = fs->make < TH1F > ("h_CSV_all_ee_c",  "ee CSV discriminant (c);CSV", 100, 0., 1.);
-  h_CSV_all_ee_l  = fs->make < TH1F > ("h_CSV_all_ee_l",  "ee CSV discriminant (dusg);CSV", 100, 0., 1.);
-  h_CSV_all_ee_tt = fs->make < TH1F > ("h_CSV_all_ee_tt", "ee CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
-
-  h_CSV_all_mm    = fs->make < TH1F > ("h_CSV_all_mm",    "#mu#mu  CSV discriminant;CSV", 100, 0., 1.);
-  h_CSV_all_mm_b  = fs->make < TH1F > ("h_CSV_all_mm_b",  "#mu#mu  CSV discriminant (b);CSV", 100, 0., 1.);
-  h_CSV_all_mm_c  = fs->make < TH1F > ("h_CSV_all_mm_c",  "#mu#mu  CSV discriminant (c);CSV", 100, 0., 1.);
-  h_CSV_all_mm_l  = fs->make < TH1F > ("h_CSV_all_mm_l",  "#mu#mu  CSV discriminant (dusg);CSV", 100, 0., 1.);
-  h_CSV_all_mm_tt = fs->make < TH1F > ("h_CSV_all_mm_tt", "#mu#mu  CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
-
-  h_BJP_ee    = fs->make < TH1F > ("h_BJP_ee",    "ee BJP discriminant;BJP", 100, 0., 10.);
-  h_BJP_ee_b  = fs->make < TH1F > ("h_BJP_ee_b",  "ee BJP discriminant (b);BJP", 100, 0., 10.);
-  h_BJP_ee_c  = fs->make < TH1F > ("h_BJP_ee_c",  "ee BJP discriminant (c);BJP", 100, 0., 10.);
-  h_BJP_ee_l  = fs->make < TH1F > ("h_BJP_ee_l",  "ee BJP discriminant (dusg);BJP", 100, 0., 10.);
-  h_BJP_ee_tt = fs->make < TH1F > ("h_BJP_ee_tt", "ee BJP discriminant (Z#rightarrow#tau#tau);BJP", 100, 0., 10.);
-
-  h_BJP_mm    = fs->make < TH1F > ("h_BJP_mm",    "#mu#mu  BJP discriminant;BJP", 100, 0., 10.);
-  h_BJP_mm_b  = fs->make < TH1F > ("h_BJP_mm_b",  "#mu#mu  BJP discriminant (b);BJP", 100, 0., 10.);
-  h_BJP_mm_c  = fs->make < TH1F > ("h_BJP_mm_c",  "#mu#mu  BJP discriminant (c);BJP", 100, 0., 10.);
-  h_BJP_mm_l  = fs->make < TH1F > ("h_BJP_mm_l",  "#mu#mu  BJP discriminant (dusg);BJP", 100, 0., 10.);
-  h_BJP_mm_tt = fs->make < TH1F > ("h_BJP_mm_tt", "#mu#mu  BJP discriminant (Z#rightarrow#tau#tau);BJP", 100, 0., 10.);
+  std::string channel = pileupDT_;
+  if (  pileupDT_ == "mm" )
+    channel = "#mu#mu"; 
+  else if (  pileupDT_ == "em" )
+    channel = "e#mu"; 
 
 
+  // ------------------------------------------------------------------------------------------------
+  //  Z+jets histos
+
+
+  // dilepton mass
+  std::string htitle = Form("%s - mass;M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  h_M    = fs->make < TH1F > ("h_M", htitle.data(), 50, 71., 111.);
+  h_M    ->Sumw2();
+  htitle = Form("%s - mass (b);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  h_M_b  = fs->make < TH1F > ("h_M_b", htitle.data(), 50, 71., 111.);
+  h_M_b  ->Sumw2();
+  htitle = Form("%s - mass (c);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  h_M_c  = fs->make < TH1F > ("h_M_c", htitle.data(), 50, 71., 111.);
+  h_M_c  ->Sumw2();
+  htitle = Form("%s - mass (dusg);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  h_M_l  = fs->make < TH1F > ("h_M_l", htitle.data(), 50, 71., 111.);
+  h_M_l  ->Sumw2();
+  htitle = Form("%s - mass (Z#rightarrow#tau#tau);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  h_M_tt = fs->make < TH1F > ("h_M_tt", htitle.data(), 50, 71., 111.);
+  h_M_tt ->Sumw2();
+
+  // dilepton PT
+  htitle  = Form("%s - P_{T};P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  h_Pt    = fs->make < TH1F > ("h_Pt",    htitle.data(), 150, 0., 150.);
+  h_Pt    ->Sumw2();
+  htitle  = Form("%s - P_{T} (b);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  h_Pt_b  = fs->make < TH1F > ("h_Pt_b",  htitle.data(), 150, 0., 150.);
+  h_Pt_b  ->Sumw2();
+  htitle  = Form("%s - P_{T} (c);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  h_Pt_c  = fs->make < TH1F > ("h_Pt_c",  htitle.data(), 150, 0., 150.);
+  h_Pt_c  ->Sumw2();
+  htitle  = Form("%s - P_{T} (dusg);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  h_Pt_l  = fs->make < TH1F > ("h_Pt_l",  htitle.data(), 150, 0., 150.);
+  h_Pt_l  ->Sumw2();
+  htitle  = Form("%s - P_{T} (Z#rightarrow#tau#tau);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  h_Pt_tt = fs->make < TH1F > ("h_Pt_tt", htitle.data(), 150, 0., 150.);
+  h_Pt_tt ->Sumw2();
+
+  // jet multiplicity
+  htitle    = Form("%s - jet multiplicity;N_{jet}", channel.data());
+  h_njet    = fs->make < TH1F > ("h_njet",    htitle.data(), 10, 0.5, 10.5);
+  h_njet    ->Sumw2();
+  htitle    = Form("%s - jet multiplicity (b);N_{jet}", channel.data());
+  h_njet_b  = fs->make < TH1F > ("h_njet_b",  htitle.data(), 10, 0.5, 10.5);
+  h_njet_b  ->Sumw2();
+  htitle    = Form("%s - jet multiplicity (c);N_{jet}", channel.data());
+  h_njet_c  = fs->make < TH1F > ("h_njet_c",  htitle.data(), 10, 0.5, 10.5);
+  h_njet_c  ->Sumw2();
+  htitle    = Form("%s - jet multiplicity (dusg);N_{jet}", channel.data());
+  h_njet_l  = fs->make < TH1F > ("h_njet_l",  htitle.data(), 10, 0.5, 10.5);
+  h_njet_l  ->Sumw2();
+  htitle    = Form("%s - jet multiplicity (Z#rightarrow#tau#tau);N_{jet}", channel.data());
+  h_njet_tt = fs->make < TH1F > ("h_njet_tt", htitle.data(), 10, 0.5, 10.5);
+  h_njet_tt ->Sumw2();
+
+  // MET
+  htitle   = Form("%s - MET;MET [GeV]", channel.data());
+  h_MET    = fs->make < TH1F > ("h_MET",    htitle.data(), 100, 0., 250.);
+  h_MET    ->Sumw2();
+  htitle   = Form("%s - MET (b);MET [GeV]", channel.data());
+  h_MET_b  = fs->make < TH1F > ("h_MET_b ", htitle.data(), 100, 0., 250.);
+  h_MET_b  ->Sumw2();
+  htitle   = Form("%s - MET (c);MET [GeV]", channel.data());
+  h_MET_c  = fs->make < TH1F > ("h_MET_c ", htitle.data(), 100, 0., 250.);
+  h_MET_c  ->Sumw2();
+  htitle   = Form("%s - MET (dusg);MET [GeV]", channel.data());
+  h_MET_l  = fs->make < TH1F > ("h_MET_l ", htitle.data(), 100, 0., 250.);
+  h_MET_l  ->Sumw2();
+  htitle   = Form("%s - MET (Z#rightarrow#tau#tau);MET [GeV]", channel.data());
+  h_MET_tt = fs->make < TH1F > ("h_MET_tt", htitle.data(), 100, 0., 250.);
+  h_MET_tt ->Sumw2();
+
+  // MET significance
+  htitle    = Form("%s - MET significance;MET significance", channel.data());
+  h_sMET    = fs->make < TH1F > ("h_sMET",    htitle.data(), 100, 0., 250.);
+  h_sMET    ->Sumw2();
+  htitle    = Form("%s - MET significance (b);MET significance", channel.data());
+  h_sMET_b  = fs->make < TH1F > ("h_sMET_b ", htitle.data(), 100, 0., 250.);
+  h_sMET_b  ->Sumw2();
+  htitle    = Form("%s - MET significance (c);MET significance", channel.data());
+  h_sMET_c  = fs->make < TH1F > ("h_sMET_c ", htitle.data(), 100, 0., 250.);
+  h_sMET_c  ->Sumw2();
+  htitle    = Form("%s - MET significance (dusg);MET significance", channel.data());
+  h_sMET_l  = fs->make < TH1F > ("h_sMET_l ", htitle.data(), 100, 0., 250.);
+  h_sMET_l  ->Sumw2();
+  htitle    = Form("%s - MET significance (Z#rightarrow#tau#tau);MET significance", channel.data());
+  h_sMET_tt = fs->make < TH1F > ("h_sMET_tt", htitle.data(), 100, 0., 250.);
+  h_sMET_tt ->Sumw2();
+
+  // CSV discriminant
+  htitle   = Form("%s - CSV discriminant;CSV", channel.data());
+  h_CSV    = fs->make < TH1F > ("h_CSV", htitle.data(), 100, 0., 1.);
+  h_CSV    ->Sumw2();
+  htitle   = Form("%s - CSV discriminant (b);CSV", channel.data());
+  h_CSV_b  = fs->make < TH1F > ("h_CSV_b", htitle.data(), 100, 0., 1.);
+  h_CSV_b  ->Sumw2();
+  htitle   = Form("%s - CSV discriminant (c);CSV", channel.data());
+  h_CSV_c  = fs->make < TH1F > ("h_CSV_c", htitle.data(), 100, 0., 1.);
+  h_CSV_c  ->Sumw2();
+  htitle   = Form("%s - CSV discriminant (dusg);CSV", channel.data());
+  h_CSV_l  = fs->make < TH1F > ("h_CSV_l", htitle.data(), 100, 0., 1.);
+  h_CSV_l  ->Sumw2();
+  htitle   = Form("%s - CSV discriminant (Z#rightarrow#tau#tau);CSV", channel.data());
+  h_CSV_tt = fs->make < TH1F > ("h_CSV_tt", htitle.data(), 100, 0., 1.);
+  h_CSV_tt ->Sumw2();
+
+  htitle        = Form("%s - CSV discriminant (g#rightarrow b#bar{b});CSV", channel.data());
+  h_CSV_b_split = fs->make < TH1F > ("h_CSV_b_split", htitle.data(), 100, 0., 1.);
+  h_CSV_b_split ->Sumw2();
+  htitle        = Form("%s - CSV discriminant (g#rightarrow c#bar{c});CSV", channel.data());
+  h_CSV_c_split = fs->make < TH1F > ("h_CSV_c_split", htitle.data(), 100, 0., 1.);
+  h_CSV_c_split ->Sumw2();
+
+  htitle       = Form("%s (all jets) - CSV discriminant;CSV", channel.data());
+  h_CSV_all    = fs->make < TH1F > ("h_CSV_all", htitle.data(), 100, 0., 1.);
+  h_CSV_all    ->Sumw2();
+  htitle       = Form("%s (all jets) - CSV discriminant (b);CSV", channel.data());
+  h_CSV_all_b  = fs->make < TH1F > ("h_CSV_all_b", htitle.data(), 100, 0., 1.);
+  h_CSV_all_b  ->Sumw2();
+  htitle       = Form("%s (all jets) - CSV discriminant (c);CSV", channel.data());
+  h_CSV_all_c  = fs->make < TH1F > ("h_CSV_all_c", htitle.data(), 100, 0., 1.);
+  h_CSV_all_c  ->Sumw2();
+  htitle       = Form("%s (all jets) - CSV discriminant (dusg);CSV", channel.data());
+  h_CSV_all_l  = fs->make < TH1F > ("h_CSV_all_l", htitle.data(), 100, 0., 1.);
+  h_CSV_all_l  ->Sumw2();
+  htitle       = Form("%s (all jets) - CSV discriminant (Z#rightarrow#tau#tau);CSV", channel.data());
+  h_CSV_all_tt = fs->make < TH1F > ("h_CSV_all_tt", htitle.data(), 100, 0., 1.);
+  h_CSV_all_tt ->Sumw2();
+
+  // BJP discriminant
+  htitle   = Form("%s - BJP discriminant;BJP", channel.data());
+  h_BJP    = fs->make < TH1F > ("h_BJP", htitle.data(), 100, 0., 10.);
+  h_BJP    ->Sumw2();
+  htitle   = Form("%s - BJP discriminant (b);BJP", channel.data());
+  h_BJP_b  = fs->make < TH1F > ("h_BJP_b", htitle.data(), 100, 0., 10.);
+  h_BJP_b  ->Sumw2();
+  htitle   = Form("%s - BJP discriminant (c);BJP", channel.data());
+  h_BJP_c  = fs->make < TH1F > ("h_BJP_c", htitle.data(), 100, 0., 10.);
+  h_BJP_c  ->Sumw2();
+  htitle   = Form("%s - BJP discriminant (dusg);BJP", channel.data());
+  h_BJP_l  = fs->make < TH1F > ("h_BJP_l", htitle.data(), 100, 0., 10.);
+  h_BJP_l  ->Sumw2();
+  htitle   = Form("%s - BJP discriminant (Z#rightarrow#tau#tau);BJP", channel.data());
+  h_BJP_tt = fs->make < TH1F > ("h_BJP_tt", htitle.data(), 100, 0., 10.);
+  h_BJP_tt ->Sumw2();
+
+  // counters for b-tagging efficiency calculation
   const float xbins[17] = {20., 30., 40., 50., 60., 70., 80., 100., 120., 160., 210., 260., 320., 400., 500., 600., 800.};
   const float ybins[9]  = {-2.4, -1.5, -1.0, -0.5, 0., 0.5, 1.0, 1.5, 2.4};
-
-  h_eff_b = fs->make < TH2F > ("h_eff_b","before tagging (b)", 16, xbins, 8, ybins);
+  htitle   = Form("%s - before tagging (b)", channel.data());
+  h_eff_b = fs->make < TH2F > ("h_eff_b", htitle.data(), 16, xbins, 8, ybins);
   h_eff_b->Sumw2();
-  h_eff_c = fs->make < TH2F > ("h_eff_c","before tagging (c)", 16, xbins, 8, ybins);
+  htitle   = Form("%s - before tagging (l)", channel.data());
+  h_eff_c = fs->make < TH2F > ("h_eff_c", htitle.data(), 16, xbins, 8, ybins);
   h_eff_c->Sumw2();
-  h_eff_l = fs->make < TH2F > ("h_eff_l","before tagging (dusg)", 16, xbins, 8, ybins);
+  htitle   = Form("%s - before tagging (dusg)", channel.data());
+  h_eff_l = fs->make < TH2F > ("h_eff_l", htitle.data(), 16, xbins, 8, ybins);
   h_eff_l->Sumw2();
 
-  hc_CSVL_eff_b = fs->make < TH2F > ("hc_CSVL_eff_b","after CSVL tagging (b)", 16, xbins, 8, ybins);
-  hc_CSVL_eff_b->Sumw2();
-  hc_CSVL_eff_c = fs->make < TH2F > ("hc_CSVL_eff_c","after CSVL tagging (c)", 16, xbins, 8, ybins);
-  hc_CSVL_eff_c->Sumw2();
-  hc_CSVL_eff_l = fs->make < TH2F > ("hc_CSVL_eff_l","after CSVL tagging (dusg)", 16, xbins, 8, ybins);
-  hc_CSVL_eff_l->Sumw2();
-  hc_CSVT_eff_b = fs->make < TH2F > ("hc_CSVT_eff_b","after CSVT tagging (b)", 16, xbins, 8, ybins);
-  hc_CSVT_eff_b->Sumw2();
-  hc_CSVT_eff_c = fs->make < TH2F > ("hc_CSVT_eff_c","after CSVT tagging (c)", 16, xbins, 8, ybins);
-  hc_CSVT_eff_c->Sumw2();
-  hc_CSVT_eff_l = fs->make < TH2F > ("hc_CSVT_eff_l","after CSVT tagging (dusg)", 16, xbins, 8, ybins);
-  hc_CSVT_eff_l->Sumw2();
+
+  // ------------------------------------------------------------------------------------------------
+  //  Z+c histos
 
 
-  hc_M_ee    = fs->make < TH1F > ("hc_M_ee",    "ee mass;M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_ee_b  = fs->make < TH1F > ("hc_M_ee_b",  "ee mass (b);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_ee_c  = fs->make < TH1F > ("hc_M_ee_c",  "ee mass (c);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_ee_l  = fs->make < TH1F > ("hc_M_ee_l",  "ee mass (dusg);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_ee_tt = fs->make < TH1F > ("hc_M_ee_tt", "ee mass (Z#rightarrow#tau#tau);M_{ee} [GeV/c^{2}]", 50, 71., 111.);
+  // dilepton mass
+  htitle = Form("%s - mass;M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  hc_M    = fs->make < TH1F > ("hc_M", htitle.data(), 50, 71., 111.);
+  hc_M    ->Sumw2();
+  htitle  = Form("%s - mass (b);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  hc_M_b  = fs->make < TH1F > ("hc_M_b", htitle.data(), 50, 71., 111.);
+  hc_M_b  ->Sumw2();
+  htitle  = Form("%s - mass (c);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  hc_M_c  = fs->make < TH1F > ("hc_M_c", htitle.data(), 50, 71., 111.);
+  hc_M_c  ->Sumw2();
+  htitle  = Form("%s - mass (dusg);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  hc_M_l  = fs->make < TH1F > ("hc_M_l", htitle.data(), 50, 71., 111.);
+  hc_M_l  ->Sumw2();
+  htitle  = Form("%s - mass (Z#rightarrow#tau#tau);M_{%s} [GeV/c^{2}]", channel.data(), channel.data());
+  hc_M_tt = fs->make < TH1F > ("hc_M_tt", htitle.data(), 50, 71., 111.);
+  hc_M_tt ->Sumw2();
 
-  hc_M_mm    = fs->make < TH1F > ("hc_M_mm",    "#mu#mu mass;M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_mm_b  = fs->make < TH1F > ("hc_M_mm_b",  "#mu#mu mass (b);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_mm_c  = fs->make < TH1F > ("hc_M_mm_c",  "#mu#mu mass (c);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_mm_l  = fs->make < TH1F > ("hc_M_mm_l",  "#mu#mu mass (dusg);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
-  hc_M_mm_tt = fs->make < TH1F > ("hc_M_mm_tt", "#mu#mu mass (Z#rightarrow#tau#tau);M_{#mu#mu} [GeV/c^{2}]", 50, 71., 111.);
+  // dilepton PT
+  htitle   = Form("%s - P_{T};P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  hc_Pt    = fs->make < TH1F > ("hc_Pt",    htitle.data(), 150, 0., 150.);
+  hc_Pt    ->Sumw2();
+  htitle   = Form("%s - P_{T} (b);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  hc_Pt_b  = fs->make < TH1F > ("hc_Pt_b",  htitle.data(), 150, 0., 150.);
+  hc_Pt_b  ->Sumw2();
+  htitle   = Form("%s - P_{T} (c);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  hc_Pt_c  = fs->make < TH1F > ("hc_Pt_c",  htitle.data(), 150, 0., 150.);
+  hc_Pt_c  ->Sumw2();
+  htitle   = Form("%s - P_{T} (dusg);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  hc_Pt_l  = fs->make < TH1F > ("hc_Pt_l",  htitle.data(), 150, 0., 150.);
+  hc_Pt_l  ->Sumw2();
+  htitle   = Form("%s - P_{T} (Z#rightarrow#tau#tau);P_{T}^{%s} [GeV/c]", channel.data(), channel.data());
+  hc_Pt_tt = fs->make < TH1F > ("hc_Pt_tt", htitle.data(), 150, 0., 150.);
+  hc_Pt_tt ->Sumw2();
 
-  hc_njet_ee    = fs->make < TH1F > ("hc_njet_ee",    "ee jet multiplicity;N_{jet}", 10, 0., 10.);
-  hc_njet_ee_b  = fs->make < TH1F > ("hc_njet_ee_b",  "ee jet multiplicity (b);N_{jet}", 10, 0., 10.);
-  hc_njet_ee_c  = fs->make < TH1F > ("hc_njet_ee_c",  "ee jet multiplicity (c);N_{jet}", 10, 0., 10.);
-  hc_njet_ee_l  = fs->make < TH1F > ("hc_njet_ee_l",  "ee jet multiplicity (dusg);N_{jet}", 10, 0., 10.);
-  hc_njet_ee_tt = fs->make < TH1F > ("hc_njet_ee_tt", "ee jet multiplicity (Z#rightarrow#tau#tau);N_{jet}", 10, 0., 10.);
+  // jet multiplicity
+  htitle     = Form("%s - jet multiplicity;N_{jet}", channel.data());
+  hc_njet    = fs->make < TH1F > ("hc_njet",    htitle.data(), 10, 0.5, 10.5);
+  hc_njet    ->Sumw2();
+  htitle     = Form("%s - jet multiplicity (b);N_{jet}", channel.data());
+  hc_njet_b  = fs->make < TH1F > ("hc_njet_b",  htitle.data(), 10, 0.5, 10.5);
+  hc_njet_b  ->Sumw2();
+  htitle     = Form("%s - jet multiplicity (c);N_{jet}", channel.data());
+  hc_njet_c  = fs->make < TH1F > ("hc_njet_c",  htitle.data(), 10, 0.5, 10.5);
+  hc_njet_c  ->Sumw2();
+  htitle     = Form("%s - jet multiplicity (dusg);N_{jet}", channel.data());
+  hc_njet_l  = fs->make < TH1F > ("hc_njet_l",  htitle.data(), 10, 0.5, 10.5);
+  hc_njet_l  ->Sumw2();
+  htitle     = Form("%s - jet multiplicity (Z#rightarrow#tau#tau);N_{jet}", channel.data());
+  hc_njet_tt = fs->make < TH1F > ("hc_njet_tt", htitle.data(), 10, 0.5, 10.5);
+  hc_njet_tt ->Sumw2();
 
-  hc_njet_mm    = fs->make < TH1F > ("hc_njet_mm",    "#mu#mu jet multiplicity;N_{jet}", 10, 0., 10.);
-  hc_njet_mm_b  = fs->make < TH1F > ("hc_njet_mm_b",  "#mu#mu jet multiplicity (b);N_{jet}", 10, 0., 10.);
-  hc_njet_mm_c  = fs->make < TH1F > ("hc_njet_mm_c",  "#mu#mu jet multiplicity (c);N_{jet}", 10, 0., 10.);
-  hc_njet_mm_l  = fs->make < TH1F > ("hc_njet_mm_l",  "#mu#mu jet multiplicity (dusg);N_{jet}", 10, 0., 10.);
-  hc_njet_mm_tt = fs->make < TH1F > ("hc_njet_mm_tt", "#mu#mu jet multiplicity (Z#rightarrow#tau#tau);N_{jet}", 10, 0., 10.);
+  // c-tagged jet multiplicity
+  htitle      = Form("%s - c-jet multiplicity;N_{c-jet}", channel.data());
+  hc_ncjet    = fs->make < TH1F > ("hc_njet",    htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet    ->Sumw2();
+  htitle      = Form("%s - c-jet multiplicity (b);N_{c-jet}", channel.data());
+  hc_ncjet_b  = fs->make < TH1F > ("hc_njet_b",  htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_b  ->Sumw2();
+  htitle      = Form("%s - c-jet multiplicity (c);N_{c-jet}", channel.data());
+  hc_ncjet_c  = fs->make < TH1F > ("hc_njet_c",  htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_c  ->Sumw2();
+  htitle      = Form("%s - c-jet multiplicity (dusg);N_{c-jet}", channel.data());
+  hc_ncjet_l  = fs->make < TH1F > ("hc_njet_l",  htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_l  ->Sumw2();
+  htitle      = Form("%s - c-jet multiplicity (Z#rightarrow#tau#tau);N_{c-jet}", channel.data());
+  hc_ncjet_tt = fs->make < TH1F > ("hc_njet_tt", htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_tt ->Sumw2();
 
-  hc_MET_ee    = fs->make < TH1F > ("hc_MET_ee",    "ee MET;MET [GeV]", 100, 0., 250.);
-  hc_MET_ee_b  = fs->make < TH1F > ("hc_MET_ee_b ", "ee MET (b);MET [GeV]", 100, 0., 250.);
-  hc_MET_ee_c  = fs->make < TH1F > ("hc_MET_ee_c ", "ee MET (c);MET [GeV]", 100, 0., 250.);
-  hc_MET_ee_l  = fs->make < TH1F > ("hc_MET_ee_l ", "ee MET (dusg);MET [GeV]", 100, 0., 250.);
-  hc_MET_ee_tt = fs->make < TH1F > ("hc_MET_ee_tt", "ee MET (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
+  // MET
+  htitle    = Form("%s - MET;MET [GeV]", channel.data());
+  hc_MET    = fs->make < TH1F > ("hc_MET",    htitle.data(), 100, 0., 250.);
+  hc_MET    ->Sumw2();
+  htitle    = Form("%s - MET (b);MET [GeV]", channel.data());
+  hc_MET_b  = fs->make < TH1F > ("hc_MET_b ", htitle.data(), 100, 0., 250.);
+  hc_MET_b  ->Sumw2();
+  htitle    = Form("%s - MET (c);MET [GeV]", channel.data());
+  hc_MET_c  = fs->make < TH1F > ("hc_MET_c ", htitle.data(), 100, 0., 250.);
+  hc_MET_c  ->Sumw2();
+  htitle    = Form("%s - MET (dusg);MET [GeV]", channel.data());
+  hc_MET_l  = fs->make < TH1F > ("hc_MET_l ", htitle.data(), 100, 0., 250.);
+  hc_MET_l  ->Sumw2();
+  htitle    = Form("%s - MET (Z#rightarrow#tau#tau);MET [GeV]", channel.data());
+  hc_MET_tt = fs->make < TH1F > ("hc_MET_tt", htitle.data(), 100, 0., 250.);
+  hc_MET_tt ->Sumw2();
 
-  hc_MET_mm    = fs->make < TH1F > ("hc_MET_mm",    "#mu#mu MET;MET [GeV]", 100, 0., 250.);
-  hc_MET_mm_b  = fs->make < TH1F > ("hc_MET_mm_b ", "#mu#mu MET (b);MET [GeV]", 100, 0., 250.);
-  hc_MET_mm_c  = fs->make < TH1F > ("hc_MET_mm_c ", "#mu#mu MET (c);MET [GeV]", 100, 0., 250.);
-  hc_MET_mm_l  = fs->make < TH1F > ("hc_MET_mm_l ", "#mu#mu MET (dusg);MET [GeV]", 100, 0., 250.);
-  hc_MET_mm_tt = fs->make < TH1F > ("hc_MET_mm_tt", "#mu#mu MET (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
+  // MET significance
+  htitle     = Form("%s - MET significance;MET significance", channel.data());
+  hc_sMET    = fs->make < TH1F > ("hc_sMET",    htitle.data(), 100, 0., 250.);
+  hc_sMET    ->Sumw2();
+  htitle     = Form("%s - MET significance (b);MET significance", channel.data());
+  hc_sMET_b  = fs->make < TH1F > ("hc_sMET_b ", htitle.data(), 100, 0., 250.);
+  hc_sMET_b  ->Sumw2();
+  htitle     = Form("%s - MET significance (c);MET significance", channel.data());
+  hc_sMET_c  = fs->make < TH1F > ("hc_sMET_c ", htitle.data(), 100, 0., 250.);
+  hc_sMET_c  ->Sumw2();
+  htitle     = Form("%s - MET significance (dusg);MET significance", channel.data());
+  hc_sMET_l  = fs->make < TH1F > ("hc_sMET_l ", htitle.data(), 100, 0., 250.);
+  hc_sMET_l  ->Sumw2();
+  htitle     = Form("%s - MET significance (Z#rightarrow#tau#tau);MET significance", channel.data());
+  hc_sMET_tt = fs->make < TH1F > ("hc_sMET_tt", htitle.data(), 100, 0., 250.);
+  hc_sMET_tt ->Sumw2();
 
-  hc_sMET_ee    = fs->make < TH1F > ("hc_sMET_ee",    "ee MET significance;MET [GeV]", 100, 0., 250.);
-  hc_sMET_ee_b  = fs->make < TH1F > ("hc_sMET_ee_b ", "ee MET significance (b);MET [GeV]", 100, 0., 250.);
-  hc_sMET_ee_c  = fs->make < TH1F > ("hc_sMET_ee_c ", "ee MET significance (c);MET [GeV]", 100, 0., 250.);
-  hc_sMET_ee_l  = fs->make < TH1F > ("hc_sMET_ee_l ", "ee MET significance (dusg);MET [GeV]", 100, 0., 250.);
-  hc_sMET_ee_tt = fs->make < TH1F > ("hc_sMET_ee_tt", "ee MET significance (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
+  // CSV discriminant
+  htitle    = Form("%s - CSV discriminant;CSV", channel.data());
+  hc_CSV    = fs->make < TH1F > ("hc_CSV", htitle.data(), 100, 0., 1.);
+  hc_CSV    ->Sumw2();
+  htitle    = Form("%s - CSV discriminant (b);CSV", channel.data());
+  hc_CSV_b  = fs->make < TH1F > ("hc_CSV_b", htitle.data(), 100, 0., 1.);
+  hc_CSV_b  ->Sumw2();
+  htitle    = Form("%s - CSV discriminant (c);CSV", channel.data());
+  hc_CSV_c  = fs->make < TH1F > ("hc_CSV_c", htitle.data(), 100, 0., 1.);
+  hc_CSV_c  ->Sumw2();
+  htitle    = Form("%s - CSV discriminant (dusg);CSV", channel.data());
+  hc_CSV_l  = fs->make < TH1F > ("hc_CSV_l", htitle.data(), 100, 0., 1.);
+  hc_CSV_l  ->Sumw2();
+  htitle    = Form("%s - CSV discriminant (Z#rightarrow#tau#tau);CSV", channel.data());
+  hc_CSV_tt = fs->make < TH1F > ("hc_CSV_tt", htitle.data(), 100, 0., 1.);
+  hc_CSV_tt ->Sumw2();
 
-  hc_sMET_mm    = fs->make < TH1F > ("hc_sMET_mm",    "#mu#mu MET significance;MET [GeV]", 100, 0., 250.);
-  hc_sMET_mm_b  = fs->make < TH1F > ("hc_sMET_mm_b ", "#mu#mu MET significance (b);MET [GeV]", 100, 0., 250.);
-  hc_sMET_mm_c  = fs->make < TH1F > ("hc_sMET_mm_c ", "#mu#mu MET significance (c);MET [GeV]", 100, 0., 250.);
-  hc_sMET_mm_l  = fs->make < TH1F > ("hc_sMET_mm_l ", "#mu#mu MET significance (dusg);MET [GeV]", 100, 0., 250.);
-  hc_sMET_mm_tt = fs->make < TH1F > ("hc_sMET_mm_tt", "#mu#mu MET significance (Z#rightarrow#tau#tau);MET [GeV]", 100, 0., 250.);
+  htitle         = Form("%s - CSV discriminant (g#rightarrow b#bar{b});CSV", channel.data());
+  hc_CSV_b_split = fs->make < TH1F > ("hc_CSV_b_split", htitle.data(), 100, 0., 1.);
+  hc_CSV_b_split ->Sumw2();
+  htitle         = Form("%s - CSV discriminant (g#rightarrow c#bar{c});CSV", channel.data());
+  hc_CSV_c_split = fs->make < TH1F > ("hc_CSV_c_split", htitle.data(), 100, 0., 1.);
+  hc_CSV_c_split ->Sumw2();
 
-  hc_CSV_ee    = fs->make < TH1F > ("hc_CSV_ee",    "ee CSV discriminant;CSV", 100, 0., 1.);
-  hc_CSV_ee_b  = fs->make < TH1F > ("hc_CSV_ee_b",  "ee CSV discriminant (b);CSV", 100, 0., 1.);
-  hc_CSV_ee_c  = fs->make < TH1F > ("hc_CSV_ee_c",  "ee CSV discriminant (c);CSV", 100, 0., 1.);
-  hc_CSV_ee_l  = fs->make < TH1F > ("hc_CSV_ee_l",  "ee CSV discriminant (dusg);CSV", 100, 0., 1.);
-  hc_CSV_ee_tt = fs->make < TH1F > ("hc_CSV_ee_tt", "ee CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
+  htitle        = Form("%s (all jets) - CSV discriminant;CSV", channel.data());
+  hc_CSV_all    = fs->make < TH1F > ("hc_CSV_all", htitle.data(), 100, 0., 1.);
+  hc_CSV_all    ->Sumw2();
+  htitle        = Form("%s (all jets) - CSV discriminant (b);CSV", channel.data());
+  hc_CSV_all_b  = fs->make < TH1F > ("hc_CSV_all_b", htitle.data(), 100, 0., 1.);
+  hc_CSV_all_b  ->Sumw2();
+  htitle        = Form("%s (all jets) - CSV discriminant (c);CSV", channel.data());
+  hc_CSV_all_c  = fs->make < TH1F > ("hc_CSV_all_c", htitle.data(), 100, 0., 1.);
+  hc_CSV_all_c  ->Sumw2();
+  htitle        = Form("%s (all jets) - CSV discriminant (dusg);CSV", channel.data());
+  hc_CSV_all_l  = fs->make < TH1F > ("hc_CSV_all_l", htitle.data(), 100, 0., 1.);
+  hc_CSV_all_l  ->Sumw2();
+  htitle        = Form("%s (all jets) - CSV discriminant (Z#rightarrow#tau#tau);CSV", channel.data());
+  hc_CSV_all_tt = fs->make < TH1F > ("hc_CSV_all_tt", htitle.data(), 100, 0., 1.);
+  hc_CSV_all_tt ->Sumw2();
 
-  hc_CSV_mm    = fs->make < TH1F > ("hc_CSV_mm",    "#mu#mu  CSV discriminant;CSV", 100, 0., 1.);
-  hc_CSV_mm_b  = fs->make < TH1F > ("hc_CSV_mm_b",  "#mu#mu  CSV discriminant (b);CSV", 100, 0., 1.);
-  hc_CSV_mm_c  = fs->make < TH1F > ("hc_CSV_mm_c",  "#mu#mu  CSV discriminant (c);CSV", 100, 0., 1.);
-  hc_CSV_mm_l  = fs->make < TH1F > ("hc_CSV_mm_l",  "#mu#mu  CSV discriminant (dusg);CSV", 100, 0., 1.);
-  hc_CSV_mm_tt = fs->make < TH1F > ("hc_CSV_mm_tt", "#mu#mu  CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
+  htitle         = Form("%s (c-tagget jets) - CSV discriminant;CSV", channel.data());
+  hc_CSV_ctag    = fs->make < TH1F > ("hc_CSV_ctag", htitle.data(), 100, 0., 1.);
+  hc_CSV_ctag    ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - CSV discriminant (b);CSV", channel.data());
+  hc_CSV_ctag_b  = fs->make < TH1F > ("hc_CSV_ctag_b", htitle.data(), 100, 0., 1.);
+  hc_CSV_ctag_b  ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - CSV discriminant (c);CSV", channel.data());
+  hc_CSV_ctag_c  = fs->make < TH1F > ("hc_CSV_ctag_c", htitle.data(), 100, 0., 1.);
+  hc_CSV_ctag_c  ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - CSV discriminant (dusg);CSV", channel.data());
+  hc_CSV_ctag_l  = fs->make < TH1F > ("hc_CSV_ctag_l", htitle.data(), 100, 0., 1.);
+  hc_CSV_ctag_l  ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - CSV discriminant (Z#rightarrow#tau#tau);CSV", channel.data());
+  hc_CSV_ctag_tt = fs->make < TH1F > ("hc_CSV_ctag_tt", htitle.data(), 100, 0., 1.);
+  hc_CSV_ctag_tt ->Sumw2();
 
-  hc_CSV_all_ee    = fs->make < TH1F > ("hc_CSV_all_ee",    "ee CSV discriminant;CSV", 100, 0., 1.);
-  hc_CSV_all_ee_b  = fs->make < TH1F > ("hc_CSV_all_ee_b",  "ee CSV discriminant (b);CSV", 100, 0., 1.);
-  hc_CSV_all_ee_c  = fs->make < TH1F > ("hc_CSV_all_ee_c",  "ee CSV discriminant (c);CSV", 100, 0., 1.);
-  hc_CSV_ee_b_split  = fs->make < TH1F > ("hc_CSV_ee_b_split",  "ee CSV discriminant (g->bb);CSV", 100, 0., 1.);
-  hc_CSV_ee_c_split  = fs->make < TH1F > ("hc_CSV_ee_c_split",  "ee CSV discriminant (g->cc);CSV", 100, 0., 1.);
-  hc_CSV_all_ee_l  = fs->make < TH1F > ("hc_CSV_all_ee_l",  "ee CSV discriminant (dusg);CSV", 100, 0., 1.);
-  hc_CSV_all_ee_tt = fs->make < TH1F > ("hc_CSV_all_ee_tt", "ee CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
+  // BJP discriminant
+  htitle    = Form("%s - BJP discriminant;BJP", channel.data());
+  hc_BJP    = fs->make < TH1F > ("hc_BJP", htitle.data(), 100, 0., 10.);
+  hc_BJP    ->Sumw2();
+  htitle    = Form("%s - BJP discriminant (b);BJP", channel.data());
+  hc_BJP_b  = fs->make < TH1F > ("hc_BJP_b", htitle.data(), 100, 0., 10.);
+  hc_BJP_b  ->Sumw2();
+  htitle    = Form("%s - BJP discriminant (c);BJP", channel.data());
+  hc_BJP_c  = fs->make < TH1F > ("hc_BJP_c", htitle.data(), 100, 0., 10.);
+  hc_BJP_c  ->Sumw2();
+  htitle    = Form("%s - BJP discriminant (dusg);BJP", channel.data());
+  hc_BJP_l  = fs->make < TH1F > ("hc_BJP_l", htitle.data(), 100, 0., 10.);
+  hc_BJP_l  ->Sumw2();
+  htitle    = Form("%s - BJP discriminant (Z#rightarrow#tau#tau);BJP", channel.data());
+  hc_BJP_tt = fs->make < TH1F > ("hc_BJP_tt", htitle.data(), 100, 0., 10.);
+  hc_BJP_tt ->Sumw2();
 
-  hc_CSV_all_mm    = fs->make < TH1F > ("hc_CSV_all_mm",    "#mu#mu  CSV discriminant;CSV", 100, 0., 1.);
-  hc_CSV_all_mm_b  = fs->make < TH1F > ("hc_CSV_all_mm_b",  "#mu#mu  CSV discriminant (b);CSV", 100, 0., 1.);
-  hc_CSV_all_mm_c  = fs->make < TH1F > ("hc_CSV_all_mm_c",  "#mu#mu  CSV discriminant (c);CSV", 100, 0., 1.);
-  hc_CSV_mm_b_split  = fs->make < TH1F > ("hc_CSV_mm_b_split",  "#mu#mu CSV discriminant (g->bb);CSV", 100, 0., 1.);
-  hc_CSV_mm_c_split  = fs->make < TH1F > ("hc_CSV_mm_c_split",  "#mu#mu CSV discriminant (g->cc);CSV", 100, 0., 1.);
-  hc_CSV_all_mm_l  = fs->make < TH1F > ("hc_CSV_all_mm_l",  "#mu#mu  CSV discriminant (dusg);CSV", 100, 0., 1.);
-  hc_CSV_all_mm_tt = fs->make < TH1F > ("hc_CSV_all_mm_tt", "#mu#mu  CSV discriminant (Z#rightarrow#tau#tau);CSV", 100, 0., 1.);
+  htitle         = Form("%s (c-tagget jets) - BJP discriminant;BJP", channel.data());
+  hc_BJP_ctag    = fs->make < TH1F > ("hc_BJP_ctag", htitle.data(), 100, 0., 10.);
+  hc_BJP_ctag    ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - BJP discriminant (b);BJP", channel.data());
+  hc_BJP_ctag_b  = fs->make < TH1F > ("hc_BJP_ctag_b", htitle.data(), 100, 0., 10.);
+  hc_BJP_ctag_b  ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - BJP discriminant (c);BJP", channel.data());
+  hc_BJP_ctag_c  = fs->make < TH1F > ("hc_BJP_ctag_c", htitle.data(), 100, 0., 10.);
+  hc_BJP_ctag_c  ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - BJP discriminant (dusg);BJP", channel.data());
+  hc_BJP_ctag_l  = fs->make < TH1F > ("hc_BJP_ctag_l", htitle.data(), 100, 0., 10.);
+  hc_BJP_ctag_l  ->Sumw2();
+  htitle         = Form("%s (c-tagged jets) - BJP discriminant (Z#rightarrow#tau#tau);BJP", channel.data());
+  hc_BJP_ctag_tt = fs->make < TH1F > ("hc_BJP_ctag_tt", htitle.data(), 100, 0., 10.);
+  hc_BJP_ctag_tt ->Sumw2();
 
-  hc_BJP_ee    = fs->make < TH1F > ("hc_BJP_ee",    "ee BJP discriminant;BJP", 100, 0., 10.);
-  hc_BJP_ee->Sumw2();
-  hc_BJP_ee_b  = fs->make < TH1F > ("hc_BJP_ee_b",  "ee BJP discriminant (b);BJP", 100, 0., 10.);
-  hc_BJP_ee_b->Sumw2();
-  hc_BJP_ee_c  = fs->make < TH1F > ("hc_BJP_ee_c",  "ee BJP discriminant (c);BJP", 100, 0., 10.);
-  hc_BJP_ee_c->Sumw2();
-  hc_BJP_ee_l  = fs->make < TH1F > ("hc_BJP_ee_l",  "ee BJP discriminant (dusg);BJP", 100, 0., 10.);
-  hc_BJP_ee_l->Sumw2();
-  hc_BJP_ee_tt = fs->make < TH1F > ("hc_BJP_ee_tt", "ee BJP discriminant (Z#rightarrow#tau#tau);BJP", 100, 0., 10.);
-  hc_BJP_ee_tt->Sumw2();
+  // JBP discriminant
+  htitle    = Form("%s - JPB discriminant;JPB", channel.data());
+  hc_JPB    = fs->make < TH1F > ("hc_JPB", htitle.data(), 100, 0., 2.);
+  hc_JPB    ->Sumw2();
+  htitle    = Form("%s - JPB discriminant (b);JPB", channel.data());
+  hc_JPB_b  = fs->make < TH1F > ("hc_JPB_b", htitle.data(), 100, 0., 2.);
+  hc_JPB_b  ->Sumw2();
+  htitle    = Form("%s - JPB discriminant (c);JPB", channel.data());
+  hc_JPB_c  = fs->make < TH1F > ("hc_JPB_c", htitle.data(), 100, 0., 2.);
+  hc_JPB_c  ->Sumw2();
+  htitle    = Form("%s - JPB discriminant (dusg);JPB", channel.data());
+  hc_JPB_l  = fs->make < TH1F > ("hc_JPB_l", htitle.data(), 100, 0., 2.);
+  hc_JPB_l  ->Sumw2();
+  htitle    = Form("%s - JPB discriminant (Z#rightarrow#tau#tau);JPB", channel.data());
+  hc_JPB_tt = fs->make < TH1F > ("hc_JPB_tt", htitle.data(), 100, 0., 2.);
+  hc_JPB_tt ->Sumw2();
 
-  hc_BJP_mm    = fs->make < TH1F > ("hc_BJP_mm",    "#mu#mu  BJP discriminant;BJP", 100, 0., 10.);
-  hc_BJP_mm->Sumw2();
-  hc_BJP_mm_b  = fs->make < TH1F > ("hc_BJP_mm_b",  "#mu#mu  BJP discriminant (b);BJP", 100, 0., 10.);
-  hc_BJP_mm_b->Sumw2();
-  hc_BJP_mm_c  = fs->make < TH1F > ("hc_BJP_mm_c",  "#mu#mu  BJP discriminant (c);BJP", 100, 0., 10.);
-  hc_BJP_mm_c->Sumw2();
-  hc_BJP_mm_l  = fs->make < TH1F > ("hc_BJP_mm_l",  "#mu#mu  BJP discriminant (dusg);BJP", 100, 0., 10.);
-  hc_BJP_mm_l->Sumw2();
-  hc_BJP_mm_tt = fs->make < TH1F > ("hc_BJP_mm_tt", "#mu#mu  BJP discriminant (Z#rightarrow#tau#tau);BJP", 100, 0., 10.);
-  hc_BJP_mm_tt->Sumw2();
+  // CHP discriminant
+  htitle    = Form("%s - CHP discriminant;CHP", channel.data());
+  hc_CHP    = fs->make < TH1F > ("hc_CHP", htitle.data(), 100, 0., 20.);
+  hc_CHP    ->Sumw2();
+  htitle    = Form("%s - CHP discriminant (b);CHP", channel.data());
+  hc_CHP_b  = fs->make < TH1F > ("hc_CHP_b", htitle.data(), 100, 0., 20.);
+  hc_CHP_b  ->Sumw2();
+  htitle    = Form("%s - CHP discriminant (c);CHP", channel.data());
+  hc_CHP_c  = fs->make < TH1F > ("hc_CHP_c", htitle.data(), 100, 0., 20.);
+  hc_CHP_c  ->Sumw2();
+  htitle    = Form("%s - CHP discriminant (dusg);CHP", channel.data());
+  hc_CHP_l  = fs->make < TH1F > ("hc_CHP_l", htitle.data(), 100, 0., 20.);
+  hc_CHP_l  ->Sumw2();
+  htitle    = Form("%s - CHP discriminant (Z#rightarrow#tau#tau);CHP", channel.data());
+  hc_CHP_tt = fs->make < TH1F > ("hc_CHP_tt", htitle.data(), 100, 0., 20.);
+  hc_CHP_tt ->Sumw2();
+
+  // CHE discriminant
+  htitle    = Form("%s - CHE discriminant;CHE", channel.data());
+  hc_CHE    = fs->make < TH1F > ("hc_CHE", htitle.data(), 100, 0., 20.);
+  hc_CHE    ->Sumw2();
+  htitle    = Form("%s - CHE discriminant (b);CHE", channel.data());
+  hc_CHE_b  = fs->make < TH1F > ("hc_CHE_b", htitle.data(), 100, 0., 20.);
+  hc_CHE_b  ->Sumw2();
+  htitle    = Form("%s - CHE discriminant (c);CHE", channel.data());
+  hc_CHE_c  = fs->make < TH1F > ("hc_CHE_c", htitle.data(), 100, 0., 20.);
+  hc_CHE_c  ->Sumw2();
+  htitle    = Form("%s - CHE discriminant (dusg);CHE", channel.data());
+  hc_CHE_l  = fs->make < TH1F > ("hc_CHE_l", htitle.data(), 100, 0., 20.);
+  hc_CHE_l  ->Sumw2();
+  htitle    = Form("%s - CHE discriminant (Z#rightarrow#tau#tau);CHE", channel.data());
+  hc_CHE_tt = fs->make < TH1F > ("hc_CHE_tt", htitle.data(), 100, 0., 20.);
+  hc_CHE_tt ->Sumw2();
+
+  // Secondary VTX mass
+  htitle     = Form("%s - Secondary VTX mass;M_{VTX} [GeV/c^{2}]", channel.data());
+  hc_svxM    = fs->make < TH1F > ("hc_svxM",    htitle.data(), 100, 0., 10.);
+  hc_svxM    ->Sumw2();
+  htitle     = Form("%s - Secondary VTX mass (b);M_{VTX} [GeV/c^{2}]", channel.data());
+  hc_svxM_b  = fs->make < TH1F > ("hc_svxM_b",  htitle.data(), 100, 0., 10.);
+  hc_svxM_b  ->Sumw2();
+  htitle     = Form("%s - Secondary VTX mass (c);M_{VTX} [GeV/c^{2}]", channel.data());
+  hc_svxM_c  = fs->make < TH1F > ("hc_svxM_c",  htitle.data(), 100, 0., 10.);
+  hc_svxM_c  ->Sumw2();
+  htitle     = Form("%s - Secondary VTX mass (dusg);M_{VTX} [GeV/c^{2}]", channel.data());
+  hc_svxM_l  = fs->make < TH1F > ("hc_svxM_l",  htitle.data(), 100, 0., 10.);
+  hc_svxM_l  ->Sumw2();
+  htitle     = Form("%s - Secondary VTX mass (Z#rightarrow#tau#tau);M_{VTX} [GeV/c^{2}]", channel.data());
+  hc_svxM_tt = fs->make < TH1F > ("hc_svxM_tt", htitle.data(), 100, 0., 10.);
+  hc_svxM_tt ->Sumw2();
+  
+  // Secondary VTX energy fraction
+  htitle       = Form("%s - Sec. VTX energy fraction;Energy fraction", channel.data());
+  hc_svxEfr    = fs->make < TH1F > ("hc_svxEfr",    htitle.data(), 100, 0., 1.);
+  hc_svxEfr    ->Sumw2();
+  htitle       = Form("%s - Sec. VTX energy fraction (b);Energy fraction", channel.data());
+  hc_svxEfr_b  = fs->make < TH1F > ("hc_svxEfr_b",  htitle.data(), 100, 0., 1.);
+  hc_svxEfr_b  ->Sumw2();
+  htitle       = Form("%s - Sec. VTX energy fraction (c);Energy fraction", channel.data());
+  hc_svxEfr_c  = fs->make < TH1F > ("hc_svxEfr_c",  htitle.data(), 100, 0., 1.);
+  hc_svxEfr_c  ->Sumw2();
+  htitle       = Form("%s - Sec. VTX energy fraction (dusg);Energy fraction", channel.data());
+  hc_svxEfr_l  = fs->make < TH1F > ("hc_svxEfr_l",  htitle.data(), 100, 0., 1.);
+  hc_svxEfr_l  ->Sumw2();
+  htitle       = Form("%s - Sec. VTX energy fraction (Z#rightarrow#tau#tau);Energy fraction", channel.data());
+  hc_svxEfr_tt = fs->make < TH1F > ("hc_svxEfr_tt", htitle.data(), 100, 0., 1.);
+  hc_svxEfr_tt ->Sumw2();
+  
+  // counters for b-tagging efficiency calculation
+  htitle        = Form("%s - after CSVL tagging (b)", channel.data());
+  hc_CSVL_eff_b = fs->make < TH2F > ("hc_CSVL_eff_b", htitle.data(), 16, xbins, 8, ybins);
+  hc_CSVL_eff_b ->Sumw2();
+  htitle        = Form("%s - after CSVL tagging (c)", channel.data());
+  hc_CSVL_eff_c = fs->make < TH2F > ("hc_CSVL_eff_c", htitle.data(), 16, xbins, 8, ybins);
+  hc_CSVL_eff_c ->Sumw2();
+  htitle        = Form("%s - after CSVL tagging (dusg)", channel.data());
+  hc_CSVL_eff_l = fs->make < TH2F > ("hc_CSVL_eff_l", htitle.data(), 16, xbins, 8, ybins);
+  hc_CSVL_eff_l ->Sumw2();
+
+  htitle        = Form("%s - after CSVT tagging (b)", channel.data());
+  hc_CSVT_eff_b = fs->make < TH2F > ("hc_CSVT_eff_b", htitle.data(), 16, xbins, 8, ybins);
+  hc_CSVT_eff_b ->Sumw2();
+  htitle        = Form("%s - after CSVT tagging (c)", channel.data());
+  hc_CSVT_eff_c = fs->make < TH2F > ("hc_CSVT_eff_c", htitle.data(), 16, xbins, 8, ybins);
+  hc_CSVT_eff_c ->Sumw2();
+  htitle        = Form("%s - after CSVT tagging (dusg)", channel.data());
+  hc_CSVT_eff_l = fs->make < TH2F > ("hc_CSVT_eff_l", htitle.data(), 16, xbins, 8, ybins);
+  hc_CSVT_eff_l ->Sumw2();
+
 
 }
 
@@ -699,6 +934,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   bool ee_event = false;
   bool mm_event = false;
+  bool em_event = false;
 
   bool is_tautau = false;
   unsigned int n_b = 0;
@@ -710,7 +946,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 
 
-  // ================================================================================================
+  // ------------------------------------------------------------------------------------------------
   //  Access event information
 
 
@@ -747,8 +983,9 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   if (lepton_=="electron+muon" && !muons.isValid()) return;
 
   
-  // ================================================================================================
-  //  Event weights
+
+  // ------------------------------------------------------------------------------------------------
+  //  Pile-up reweighting
 
 
   edm::Handle < vector < PileupSummaryInfo > > PupInfo;
@@ -785,68 +1022,136 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 
 
-  // ================================================================================================
-  //  Electrons
+  // ------------------------------------------------------------------------------------------------
+  //  Z reconstruction
 
+
+  double dilep_mass = -999.;
+  double dilep_pt   = -999.;
+  math::XYZTLorentzVector dilep_mom;
+
+  // --- electron selection
   vector < pat::Electron > vect_elem;
   vector < pat::Electron > vect_elep;
-
   for (pat::ElectronCollection::const_iterator ele=electrons->begin(); ele!=electrons->end(); ++ele) {
 
     if ( ele->pt()<20. || fabs(ele->eta())>2.4 ) continue; 
 
     ele->charge()<0. ? vect_elem.push_back(*ele) : vect_elep.push_back(*ele);
     
-  } // ele loop
-
-
-  double diele_mass = 0.;
-  math::XYZTLorentzVector z_ee;
-
-  if ( vect_elem.size()>0. && vect_elep.size()>0. ){
-
-    z_ee = vect_elem[0].p4() + vect_elep[0].p4();
-    diele_mass = z_ee.mass();
-    if ( diele_mass>71. && diele_mass<111. ) ee_event = true;
-
   }
 
-
-
-
-  // ================================================================================================
-  //   Muons
-  
+  // --- muon selection
   vector < pat::Muon > vect_muom;
   vector < pat::Muon > vect_muop;
-
   for (pat::MuonCollection::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon) {
 
     if ( muon->pt()<20. || fabs(muon->eta())>2.4 ) continue;
 
     muon->charge()<0. ? vect_muom.push_back(*muon) : vect_muop.push_back(*muon);
 
-  } // muon loop
+  }
 
 
-  double dimuo_mass = 0.;
-  math::XYZTLorentzVector z_mm;
+  // --- dielectron channel
 
-  if ( vect_muom.size()>0. && vect_muop.size()>0. ){
+  if ( pileupDT_ == "ee" ){
 
-    z_mm = vect_muom[0].p4() + vect_muop[0].p4();
-    dimuo_mass = z_mm.mass();
-    if ( dimuo_mass>71. && dimuo_mass<111. ) mm_event = true;
+    if ( vect_elem.size()>0. && vect_elep.size()>0. ){
+
+      dilep_mom  = vect_elem[0].p4() + vect_elep[0].p4();
+      dilep_mass = dilep_mom.mass();
+      dilep_pt   = dilep_mom.pt();
+      if ( dilep_mass>71. && dilep_mass<111. ) ee_event = true;
+
+      if (isMC && ee_event) {
+	double scalFac_elem = ElSF_ ->Val(vect_elem[0].pt(), vect_elem[0].eta()) * 
+	                      ElSF2_->Val(vect_elem[0].pt(), vect_elem[0].eta());
+	double scalFac_elep = ElSF_ ->Val(vect_elep[0].pt(), vect_elep[0].eta()) * 
+                              ElSF2_->Val(vect_elep[0].pt(), vect_elep[0].eta());
+	MyWeight *= scalFac_elem * scalFac_elep;
+      }
+      
+    }
+    
+  }
+  
+
+  // --- dimuon channel
+
+  else if ( pileupDT_ == "mm" ){
+
+    if ( vect_muom.size()>0. && vect_muop.size()>0. ){
+
+      dilep_mom  = vect_muom[0].p4() + vect_muop[0].p4();
+      dilep_mass = dilep_mom.mass();
+      dilep_pt   = dilep_mom.pt();
+      if ( dilep_mass>71. && dilep_mass<111. ) mm_event = true;
+
+      if (isMC && mm_event) {
+	double scalFac_muom = MuSF_->Val(vect_muom[0].pt(), vect_muom[0].eta()) * 
+	                      sqrt(MuSF2_->Val(fabs(vect_muom[0].eta()), fabs(vect_muop[0].eta())));
+	double scalFac_muop = MuSF_->Val(vect_muop[0].pt(), vect_muop[0].eta()) * 
+	                      sqrt(MuSF2_->Val(fabs(vect_muom[0].eta()), fabs(vect_muop[0].eta())));
+	MyWeight *= scalFac_muom * scalFac_muop;
+      }
+    }
 
   }
 
+
+  // --- electron-muon channel
+
+  else if ( pileupDT_ == "em" ){
+
+    if ( vect_muom.size()>0. && vect_elep.size()>0. ){
+
+      dilep_mom  = vect_muom[0].p4() + vect_elep[0].p4();
+      dilep_mass = dilep_mom.mass();
+      dilep_pt   = dilep_mom.pt();
+      if ( dilep_mass>71. && dilep_mass<111. ) em_event = true;
+
+      if (isMC && em_event) {
+	double scalFac_muom = MuSF_->Val(vect_muom[0].pt(), vect_muom[0].eta()) * 
+	                      sqrt(MuSF2_->Val(fabs(vect_muom[0].eta()), fabs(vect_muom[0].eta())));
+	double scalFac_elep = ElSF_ ->Val(vect_elep[0].pt(), vect_elep[0].eta()) * 
+                              ElSF2_->Val(vect_elep[0].pt(), vect_elep[0].eta());
+	MyWeight *= scalFac_muom * scalFac_elep;
+      }
+
+    }
+    else if ( vect_muop.size()>0. && vect_elem.size()>0. ){
+
+      dilep_mom  = vect_muop[0].p4() + vect_elem[0].p4();
+      dilep_mass = dilep_mom.mass();
+      dilep_pt   = dilep_mom.pt();
+      if ( dilep_mass>71. && dilep_mass<111. ) em_event = true;
+
+      if (isMC) {
+	double scalFac_muop = MuSF_->Val(vect_muop[0].pt(), vect_muop[0].eta()) * 
+	                      sqrt(MuSF2_->Val(fabs(vect_muop[0].eta()), fabs(vect_muop[0].eta())));
+	double scalFac_elem = ElSF_ ->Val(vect_elem[0].pt(), vect_elem[0].eta()) * 
+	                      ElSF2_->Val(vect_elem[0].pt(), vect_elem[0].eta());
+	MyWeight *= scalFac_muop * scalFac_elem;
+      }
+
+    }
+
+  }
+  else{
+    throw cms::Exception("UnknownChannel") << "Unknown analysis channel: " << pileupDT_ << endl;
+  }
+    
+
+
+  // ================================================================================================
+  //   Keep only Z-->ee, Z-->mm and em events:
+  // ================================================================================================
+  
   ee_event = ee_event && (lepton_ == "electron");
   mm_event = mm_event && (lepton_ == "muon");
-  
-
-
-  // Keep only Z-->ee and Z-->mm events:
-  if ( !ee_event && !mm_event ) return;
+  em_event = em_event && (lepton_ == "electron+muon");
+  if ( !ee_event && !mm_event && !em_event ) return;
 
 
 
@@ -866,30 +1171,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 
 
-  // ================================================================================================
-  //  Lepton scale factors
-
-  if (isMC) {
-    if (ee_event) {
-      double scalFac_elem = ElSF_ ->Val(vect_elem[0].pt(), vect_elem[0].eta()) * 
-	                    ElSF2_->Val(vect_elem[0].pt(), vect_elem[0].eta());
-      double scalFac_elep = ElSF_ ->Val(vect_elep[0].pt(), vect_elep[0].eta()) * 
-                            ElSF2_->Val(vect_elep[0].pt(), vect_elep[0].eta());
-      MyWeight *= scalFac_elem * scalFac_elep;
-    }
-    if (mm_event) {
-      double scalFac_muom = MuSF_->Val(vect_muom[0].pt(), vect_muom[0].eta()) * 
-	                    sqrt(MuSF2_->Val(fabs(vect_muom[0].eta()), fabs(vect_muop[0].eta())));
-      double scalFac_muop = MuSF_->Val(vect_muop[0].pt(), vect_muop[0].eta()) * 
-	                    sqrt(MuSF2_->Val(fabs(vect_muom[0].eta()), fabs(vect_muop[0].eta())));
-      MyWeight *= scalFac_muom * scalFac_muop;
-    }
-  }
-
-
-
-  // ================================================================================================
-  //  Primary vertices
+  // ------------------------------------------------------------------------------------------------
+  //  Primary vertex selection
 
   bool vtx_cut = false;
 
@@ -904,13 +1187,17 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   } 
 
 
-  // Keep only events with a good primary vertex:
+
+  // ================================================================================================
+  //  Keep only events with a good primary vertex:
+  // ================================================================================================
+
   if ( !vtx_cut ) return;
 
 
 
-  // ================================================================================================
-  //  Jets
+  // ------------------------------------------------------------------------------------------------
+  //  Jet selection
 
   vector < pat::Jet > vect_jets;
   vector < pat::Jet > vect_cjets;
@@ -952,9 +1239,13 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     double discrCSV = jetNew.bDiscriminator("combinedSecondaryVertexBJetTags");
 
 
-    if ( ( discrCSV>0.244 && discrCSV<0.898 && fabs(jetNew.eta())<2.4 ) )
+    if ( ( discrCSV>0.244 && discrCSV<0.898 && fabs(jetNew.eta())<2.4 ) ){
+
+      //reco::SecondaryVertexTagInfo const * sv = jetNew.tagInfoSecondaryVertex("secondaryVertex");
+      //if ( sv && sv->nVertices()>0 )
       vect_cjets.push_back(jetNew);
 
+    }
 
     // --- check the MC truth:
     bool hasb = false;
@@ -971,7 +1262,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	  if ( abs(mot->pdgId()) == 4 ) hasc = true;
 	  mot = mot->mother(0);
 	}
-
       }
 
 
@@ -1028,498 +1318,403 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
     else  has_c.push_back(0);
 
+
   } // for jet
 
- 
-
-  // Keep only events with at least one reconstructed jet:
-  if ( vect_jets.size()==0 ) return;
-
-  double scalFac_b = ctagWeight(isMC, vect_jets);
   
 
+  // ================================================================================================
+  //  Keep only events with at least one reconstructed jet:
+  // ================================================================================================
 
-  if ( ee_event ){
-    h_MET_ee->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-    h_sMET_ee->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
+  if ( vect_jets.size()==0 ) return;
+
+
+  // --- Z Pt reweighting:
+//  if ( ee_event ){
+//    
+//    double w_Zpt = 0.940801 +
+//      0.0125043   * dilep_pt -
+//      0.000900183 * pow(dilep_pt,2) +
+//      2.57315e-05 * pow(dilep_pt,3) -
+//      3.25401e-07 * pow(dilep_pt,4) +
+//      1.77911e-09 * pow(dilep_pt,5) -
+//      3.15907e-12 * pow(dilep_pt,6);
+//   
+//    if ( dilep_pt > 80. ) w_Zpt = 1.;
+//
+//    MyWeight *= w_Zpt;
+//
+//    //cout <<  dilep_pt << " " << w_Zpt << endl;
+//
+//
+//  }
+//
+//  if ( mm_event ){
+//    
+//    double w_Zpt = 0.963693 + 
+//      0.0115836   * dimuo_pt -
+//      0.000900126 * pow(dimuo_pt,2) +
+//      2.8187e-05  * pow(dimuo_pt,3) -
+//      4.10665e-07 * pow(dimuo_pt,4) +
+//      2.74203e-09 * pow(dimuo_pt,5) -
+//      6.6021e-12  * pow(dimuo_pt,6);
+//    
+//    if ( dimuo_pt > 80. ) w_Zpt = 1.;
+//
+//    MyWeight *= w_Zpt;
+//
+//    //cout << dimuo_pt << " " <<  w_Zpt << endl;
+//
+//  }
+
+
+
+
+  double scalFac_b = ctagWeight(isMC, vect_jets);
+
+
+
+  h_MET->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
+  h_sMET->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
     
-    if (isMC) {
+  if (isMC) {
      
-      if (is_tautau) {
-	h_MET_ee_tt->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	h_sMET_ee_tt->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-      }
-      else {
-	if ( n_b>0 ){
-	  h_MET_ee_b->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	  h_sMET_ee_b->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
- 	}
-	else if ( n_b==0 && n_c>0 ){
-	  h_MET_ee_c->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	  h_sMET_ee_c->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-	}
-	else if ( n_b==0 && n_c==0 ){
-	  h_MET_ee_l->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	  h_sMET_ee_l->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-	}
-
-      } 
+    if (is_tautau) {
+      h_MET_tt->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
+      h_sMET_tt->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
     }
+    else {
+      if ( n_b>0 ){
+	h_MET_b->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
+	h_sMET_b->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
+      }
+      else if ( n_b==0 && n_c>0 ){
+	h_MET_c->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
+	h_sMET_c->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
+      }
+      else if ( n_b==0 && n_c==0 ){
+	h_MET_l->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
+	h_sMET_l->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
+      }
+      
+    } 
 
 
     if ( vect_cjets.size()>0 ) {
 
-      hc_MET_ee->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-      hc_sMET_ee->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
+      hc_MET->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
+      hc_sMET->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
 
       if (isMC) {
 	
 	if (is_tautau) {
-	  hc_MET_ee_tt->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	  hc_sMET_ee_tt->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
+	  hc_MET_tt->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
+	  hc_sMET_tt->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
 	}
 	else {
 	  if ( n_b>0 ){
-	    hc_MET_ee_b->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	    hc_sMET_ee_b->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
+	    hc_MET_b->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
+	    hc_sMET_b->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
 	  }
 	  else if ( n_b==0 && n_c>0 ){
-	    hc_MET_ee_c->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	    hc_sMET_ee_c->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
+	    hc_MET_c->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
+	    hc_sMET_c->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
 	  }
 	  else if ( n_b==0 && n_c==0 ){
-	    hc_MET_ee_l->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	    hc_sMET_ee_l->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
+	    hc_MET_l->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
+	    hc_sMET_l->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
 	  }
 
 	} 
       }
 
-
     }
-
-  }
-  else if ( mm_event ){
-    h_MET_mm->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-    h_sMET_mm->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-
-    if (isMC) {
-     
-      if (is_tautau) {
-	h_MET_mm_tt->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	h_sMET_mm_tt->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-      }
-      else {
-	if ( n_b>0 ){
-	  h_MET_mm_b->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	  h_sMET_mm_b->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
- 	}
-	else if ( n_b==0 && n_c>0 ){
-	  h_MET_mm_c->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	  h_sMET_mm_c->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-	}
-	else if ( n_b==0 && n_c==0 ){
-	  h_MET_mm_l->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
-	  h_sMET_mm_l->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight);
-	}
-
-      } 
-    }
-
-
-    if ( vect_cjets.size()>0 ) {
-
-      hc_MET_mm->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-      hc_sMET_mm->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
-
-      if (isMC) {
-	
-	if (is_tautau) {
-	  hc_MET_mm_tt->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	  hc_sMET_mm_tt->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
-	}
-	else {
-	  if ( n_b>0 ){
-	    hc_MET_mm_b->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	    hc_sMET_mm_b->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
-	  }
-	  else if ( n_b==0 && n_c>0 ){
-	    hc_MET_mm_c->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	    hc_sMET_mm_c->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
-	  }
-	  else if ( n_b==0 && n_c==0 ){
-	    hc_MET_mm_l->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight*scalFac_b);
-	    hc_sMET_mm_l->Fill(met->empty() ? 0. : (*met)[0].significance(), MyWeight*scalFac_b);
-	  }
-
-	} 
-      }
-
-
-    }
-
+    
   }
 
-  // Keep only events with low MET significance
+  // ================================================================================================
+  //  Keep only events with low MET significance
+  // ================================================================================================
+
   if ( !met->empty() && (*met)[0].significance() > 30. ) return; 
 
 
-
-  // ================================================================================================
+  // ------------------------------------------------------------------------------------------------
   //  Z+jet histograms
 
 
-  if ( ee_event ){
+  if (!is_tautau){
 
-    if (!is_tautau){
+    n_events[0]++;
+    w_events[0] += MyWeight;
+    w2_events[0] += MyWeight*MyWeight;
 
-      n_events[0][0]++;
-      w_events[0][0] += MyWeight;
-      w2_events[0][0] += MyWeight*MyWeight;
+    h_M->Fill(dilep_mass, MyWeight);
+    h_Pt->Fill(dilep_pt, MyWeight);
+    h_njet->Fill(vect_jets.size(), MyWeight);
 
-      h_M_ee->Fill(diele_mass, MyWeight);
-      h_njet_ee->Fill(vect_jets.size(), MyWeight);
-
-      h_CSV_ee->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      h_BJP_ee->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-      for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	h_CSV_all_ee->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-    }
-
-    if (isMC) {
-     
-      if (is_tautau) {
-
-	n_ztautau[0][0]++;
-	w_ztautau[0][0] += MyWeight;
-	w2_ztautau[0][0] += MyWeight*MyWeight;
-
-	h_M_ee_tt->Fill(diele_mass, MyWeight);
-	h_njet_ee_tt->Fill(vect_jets.size(), MyWeight);
-
-	h_CSV_ee_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	h_BJP_ee_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	  h_CSV_all_ee_tt->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	
-      }
-      else {
-
-	//if ( n_b>0 && n_c==0 ){
-	if ( n_b>0 ){
-      
-	  h_M_ee_b->Fill(diele_mass, MyWeight);
-	  h_njet_ee_b->Fill(vect_jets.size(), MyWeight);
-
-	  h_CSV_ee_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	  h_BJP_ee_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    h_CSV_all_ee_b->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      
-	}
-	else if ( n_b==0 && n_c>0 ){
-      
-	  h_M_ee_c->Fill(diele_mass, MyWeight);
-	  h_njet_ee_c->Fill(vect_jets.size(), MyWeight);
-
-	  h_CSV_ee_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	  h_BJP_ee_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    h_CSV_all_ee_c->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      
-	}
-	else if ( n_b==0 && n_c==0 ){
-      
-	  h_M_ee_l->Fill(diele_mass, MyWeight);
-	  h_njet_ee_l->Fill(vect_jets.size(), MyWeight);
-
-	  h_CSV_ee_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	  h_BJP_ee_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    h_CSV_all_ee_l->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      
-	}
-
-	if ( n_b_split>0 ){
-	  h_CSV_ee_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	}
-	if ( n_c_split>0 ){
-	  h_CSV_ee_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	}
-
-      }
-      
-    }
+    h_CSV->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+    h_BJP->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
+    for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+      h_CSV_all->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
 
   }
 
+  if (isMC) {
+     
+    if (is_tautau) {
 
-  if ( mm_event ){
+      n_ztautau[0]++;
+      w_ztautau[0] += MyWeight;
+      w2_ztautau[0] += MyWeight*MyWeight;
+
+      h_M_tt->Fill(dilep_mass, MyWeight);
+      h_Pt_tt->Fill(dilep_pt, MyWeight);
+      h_njet_tt->Fill(vect_jets.size(), MyWeight);
+
+      h_CSV_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+      h_BJP_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
+      for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	h_CSV_all_tt->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+	
+    }
+    else {
+
+      //if ( n_b>0 && n_c==0 ){
+      if ( n_b>0 ){
+      
+	h_M_b->Fill(dilep_mass, MyWeight);
+	h_Pt_b->Fill(dilep_pt, MyWeight);
+	h_njet_b->Fill(vect_jets.size(), MyWeight);
+
+	h_CSV_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+	h_BJP_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
+	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	  h_CSV_all_b->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+      
+      }
+      else if ( n_b==0 && n_c>0 ){
+      
+	h_M_c->Fill(dilep_mass, MyWeight);
+	h_Pt_c->Fill(dilep_pt, MyWeight);
+	h_njet_c->Fill(vect_jets.size(), MyWeight);
+	
+	h_CSV_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+	h_BJP_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
+	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	  h_CSV_all_c->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+      
+      }
+      else if ( n_b==0 && n_c==0 ){
+	  
+	h_M_l->Fill(dilep_mass, MyWeight);
+	h_Pt_l->Fill(dilep_pt, MyWeight);
+	h_njet_l->Fill(vect_jets.size(), MyWeight);
+
+	h_CSV_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+	h_BJP_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
+	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	  h_CSV_all_l->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+      
+      }
+
+      if ( n_b_split>0 ){
+	h_CSV_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+      }
+      if ( n_c_split>0 ){
+	h_CSV_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
+      }
+
+    }
     
-    if (!is_tautau){
-
-      n_events[0][1]++;
-      w_events[0][1] += MyWeight;
-      w2_events[0][1] += MyWeight*MyWeight;
-
-      h_M_mm->Fill(dimuo_mass, MyWeight);
-      h_njet_mm->Fill(vect_jets.size(), MyWeight);
-
-      h_CSV_mm->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      h_BJP_mm->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-      for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	h_CSV_all_mm->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-
-    }
-
-    if (isMC) {
-     
-      if (is_tautau) {
-
-	n_ztautau[0][1]++;
-	w_ztautau[0][1] += MyWeight;
-	w2_ztautau[0][1] += MyWeight*MyWeight;
-
-	h_M_mm_tt->Fill(dimuo_mass, MyWeight);
-	h_njet_mm_tt->Fill(vect_jets.size(), MyWeight);
-
-	h_CSV_mm_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	h_BJP_mm_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	  h_CSV_all_mm_tt->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	
-      }
-      else {
-
-	//if ( n_b>0 && n_c==0 ){
-	if ( n_b>0 ){
-      
-	  h_M_mm_b->Fill(dimuo_mass, MyWeight);
-	  h_njet_mm_b->Fill(vect_jets.size(), MyWeight);
-
-	  h_CSV_mm_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	  h_BJP_mm_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    h_CSV_all_mm_b->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      
-	}
-	else if ( n_b==0 && n_c>0 ){
-      
-	  h_M_mm_c->Fill(dimuo_mass, MyWeight);
-	  h_njet_mm_c->Fill(vect_jets.size(), MyWeight);
-
-	  h_CSV_mm_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	  h_BJP_mm_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    h_CSV_all_mm_c->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      
-	}
-	else if ( n_b==0 && n_c==0 ){
-      
-	  h_M_mm_l->Fill(dimuo_mass, MyWeight);
-	  h_njet_mm_l->Fill(vect_jets.size(), MyWeight);
-
-	  h_CSV_mm_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	  h_BJP_mm_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    h_CSV_all_mm_l->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      
-	}
-
-	if ( n_b_split>0 ){
-	  h_CSV_mm_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	}
-	if ( n_c_split>0 ){
-	  h_CSV_mm_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-	}
-
-
-      }
-      
-    }
-
   }
+
+
+
 
 
   // ================================================================================================
-  //  Z+c histograms
+  //  Keep only events with at least one reconstructed c-tagged jet:
+  // ================================================================================================
 
-
-  // Keep only events with at least one reconstructed c-tagged jet:
   if ( vect_cjets.size()==0 ) return;
 
 
-  if ( ee_event ){
+  // ------------------------------------------------------------------------------------------------
+  //  Z+c histograms
 
-    if (!is_tautau){
+  
+  // Get the b-tagging discriminants for the leading c-tagged jet
+  double CSV = vect_cjets[0].bDiscriminator("combinedSecondaryVertexBJetTags");
+  double BJP = vect_cjets[0].bDiscriminator("jetBProbabilityBJetTags");
+  double JPB = vect_cjets[0].bDiscriminator("jetProbabilityBJetTags");
+  double CHP = vect_cjets[0].bDiscriminator("trackCountingHighPurBJetTags");
+  double CHE = vect_cjets[0].bDiscriminator("trackCountingHighEffBJetTags");
 
-      n_events[1][0]++;
-      w_events[1][0] += MyWeight*scalFac_b;
-      w2_events[1][0] += MyWeight*MyWeight*scalFac_b*scalFac_b;
 
-      hc_M_ee->Fill(diele_mass, MyWeight*scalFac_b);
-      hc_njet_ee->Fill(vect_jets.size(), MyWeight*scalFac_b);
+  double SecVtx_mass  = 0.;
+  double SecVtx_efrac = 0.;
 
-      hc_CSV_ee->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      hc_BJP_ee->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-      for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	hc_CSV_all_ee->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+  reco::SecondaryVertexTagInfo const * svTagInfos = vect_cjets[0].tagInfoSecondaryVertex("secondaryVertex");
+  if (svTagInfos && svTagInfos->nVertices() > 0) {
 
+    // Total momentum and mass of the secondary vertex tracks 
+    const reco::Vertex &vertex = svTagInfos->secondaryVertex(0);
+    reco::TrackKinematics vertexKinematics(vertex);
+    math::XYZTLorentzVector vtxTrkMom = vertexKinematics.weightedVectorSum();
+    SecVtx_mass = vtxTrkMom.M();
+
+    // Total momentum of all jet tracks 
+    ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > jetTrkMom;
+    const double kPionMass = 0.13957018;
+    for (size_t itrack=0; itrack<vect_cjets[0].associatedTracks().size(); ++itrack) {
+      ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > trkMom;
+      trkMom.SetPx( vect_cjets[0].associatedTracks()[itrack]->px() );
+      trkMom.SetPy( vect_cjets[0].associatedTracks()[itrack]->py() );
+      trkMom.SetPz( vect_cjets[0].associatedTracks()[itrack]->pz() );
+      trkMom.SetM (kPionMass);
+      jetTrkMom += trkMom;
     }
-
-    if (isMC) {
-     
-      if (is_tautau) {
-
-	n_ztautau[1][0]++;
-	w_ztautau[1][0] += MyWeight*scalFac_b;
-	w2_ztautau[1][0] += MyWeight*MyWeight*scalFac_b;
-
-	hc_M_ee_tt->Fill(diele_mass, MyWeight*scalFac_b);
-	hc_njet_ee_tt->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	hc_CSV_ee_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	hc_BJP_ee_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	  hc_CSV_all_ee_tt->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	
-      }
-      else {
-
-	//if ( n_b>0 && n_c==0 ){
-	if ( n_b>0 ){
-      
-	  hc_M_ee_b->Fill(diele_mass, MyWeight*scalFac_b);
-	  hc_njet_ee_b->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	  hc_CSV_ee_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	  hc_BJP_ee_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    hc_CSV_all_ee_b->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      
-	}
-	else if ( n_b==0 && n_c>0 ){
-      
-	  hc_M_ee_c->Fill(diele_mass, MyWeight*scalFac_b);
-	  hc_njet_ee_c->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	  hc_CSV_ee_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	  hc_BJP_ee_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    hc_CSV_all_ee_c->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      
-	}
-	else if ( n_b==0 && n_c==0 ){
-      
-	  hc_M_ee_l->Fill(diele_mass, MyWeight*scalFac_b);
-	  hc_njet_ee_l->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	  hc_CSV_ee_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	  hc_BJP_ee_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    hc_CSV_all_ee_l->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      
-	}
-
-	if ( n_b_split>0 ){
-	  hc_CSV_ee_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	}
-	if ( n_c_split>0 ){
-	  hc_CSV_ee_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	}
-
-
-      }
-      
-    }
+    SecVtx_efrac = vtxTrkMom.P()/jetTrkMom.P();
 
   }
 
 
-  if ( mm_event ){
 
-    if (!is_tautau){
+  if (!is_tautau){
 
-      n_events[1][1]++;
-      w_events[1][1] += MyWeight*scalFac_b;
-      w2_events[1][1] += MyWeight*MyWeight*scalFac_b*scalFac_b;
+    n_events[1]++;
+    w_events[1]  += MyWeight*scalFac_b;
+    w2_events[1] += MyWeight*MyWeight*scalFac_b*scalFac_b;
 
-      hc_M_mm->Fill(dimuo_mass, MyWeight*scalFac_b);
-      hc_njet_mm->Fill(vect_jets.size(), MyWeight*scalFac_b);
+    hc_M->Fill(dilep_mass, MyWeight*scalFac_b);
+    hc_Pt->Fill(dilep_pt, MyWeight*scalFac_b);
+    hc_njet->Fill(vect_jets.size(), MyWeight*scalFac_b);
+    hc_ncjet->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+    
+    hc_CSV->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+    hc_BJP->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
+    hc_CSV_ctag->Fill(CSV, MyWeight*scalFac_b);
+    hc_BJP_ctag->Fill(BJP, MyWeight*scalFac_b);
+    for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+      hc_CSV_all->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
 
-      hc_CSV_mm->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      hc_BJP_mm->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-      for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	hc_CSV_all_mm->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-
-    }
-
-    if (isMC) {
-     
-      if (is_tautau) {
-
-	n_ztautau[1][1]++;
-	w_ztautau[1][1] += MyWeight*scalFac_b;
-	w2_ztautau[1][1] += MyWeight*MyWeight*scalFac_b;
-
-	hc_M_mm_tt->Fill(dimuo_mass, MyWeight*scalFac_b);
-	hc_njet_mm_tt->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	hc_CSV_mm_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	hc_BJP_mm_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	  hc_CSV_all_mm_tt->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	
-      }
-      else {
-
-	//if ( n_b>0 && n_c==0 ){
-	if ( n_b>0 ){
-      
-	  hc_M_mm_b->Fill(dimuo_mass, MyWeight*scalFac_b);
-	  hc_njet_mm_b->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	  hc_CSV_mm_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	  hc_BJP_mm_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    hc_CSV_all_mm_b->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      
-	}
-	else if ( n_b==0 && n_c>0 ){
-      
-	  hc_M_mm_c->Fill(dimuo_mass, MyWeight*scalFac_b);
-	  hc_njet_mm_c->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	  hc_CSV_mm_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	  hc_BJP_mm_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    hc_CSV_all_mm_c->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      
-	}
-	else if ( n_b==0 && n_c==0 ){
-      
-	  hc_M_mm_l->Fill(dimuo_mass, MyWeight*scalFac_b);
-	  hc_njet_mm_l->Fill(vect_jets.size(), MyWeight*scalFac_b);
-
-	  hc_CSV_mm_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	  hc_BJP_mm_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
-	  for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
-	    hc_CSV_all_mm_l->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      
-	}
-	
-	if ( n_b_split>0 ){
-	  hc_CSV_mm_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	}
-	if ( n_c_split>0 ){
-	  hc_CSV_mm_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-	}
-
-      }
-      
-    }
+    hc_JPB->Fill(JPB, MyWeight*scalFac_b);
+    hc_CHP->Fill(CHP, MyWeight*scalFac_b);
+    hc_CHE->Fill(CHE, MyWeight*scalFac_b);
+    hc_svxM->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+    hc_svxEfr->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
 
   }
+      
+
+  if (isMC) {
+     
+    if (is_tautau) {
+
+      n_ztautau[1]++;
+      w_ztautau[1]  += MyWeight*scalFac_b;
+      w2_ztautau[1] += MyWeight*MyWeight*scalFac_b;
+
+      hc_M_tt->Fill(dilep_mass, MyWeight*scalFac_b);
+      hc_Pt_tt->Fill(dilep_pt, MyWeight*scalFac_b);
+      hc_njet_tt->Fill(vect_jets.size(), MyWeight*scalFac_b);
+      hc_ncjet_tt->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+      hc_CSV_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+      hc_BJP_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
+      hc_CSV_ctag_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+      hc_BJP_ctag_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
+      for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	hc_CSV_all_tt->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+	
+      hc_JPB_tt->Fill(JPB, MyWeight*scalFac_b);
+      hc_CHP_tt->Fill(CHP, MyWeight*scalFac_b);
+      hc_CHE_tt->Fill(CHE, MyWeight*scalFac_b);
+      hc_svxM_tt->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+      hc_svxEfr_tt->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
+
+    }
+    else {
+
+      //if ( n_b>0 && n_c==0 ){
+      if ( n_b>0 ){
+      
+	hc_M_b->Fill(dilep_mass, MyWeight*scalFac_b);
+	hc_Pt_b->Fill(dilep_pt, MyWeight*scalFac_b);
+	hc_njet_b->Fill(vect_jets.size(), MyWeight*scalFac_b);
+	hc_ncjet_b->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+	hc_CSV_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+	hc_BJP_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
+	hc_CSV_ctag_b->Fill(CSV, MyWeight*scalFac_b);
+	hc_BJP_ctag_b->Fill(BJP, MyWeight*scalFac_b);
+	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	  hc_CSV_all_b->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+
+	hc_JPB_b->Fill(JPB, MyWeight*scalFac_b);
+	hc_CHP_b->Fill(CHP, MyWeight*scalFac_b);
+	hc_CHE_b->Fill(CHE, MyWeight*scalFac_b);
+	hc_svxM_b->Fill(SecVtx_mass,  MyWeight*scalFac_b); 
+	hc_svxEfr_b->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
+     
+      }
+      else if ( n_b==0 && n_c>0 ){
+      
+	hc_M_c->Fill(dilep_mass, MyWeight*scalFac_b);
+	hc_Pt_c->Fill(dilep_pt, MyWeight*scalFac_b);
+	hc_njet_c->Fill(vect_jets.size(), MyWeight*scalFac_b);
+	hc_ncjet_c->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+	hc_CSV_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+	hc_BJP_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
+	hc_CSV_ctag_c->Fill(CSV, MyWeight*scalFac_b);
+	hc_BJP_ctag_c->Fill(BJP, MyWeight*scalFac_b);
+	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	  hc_CSV_all_c->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+      
+	hc_JPB_c->Fill(JPB, MyWeight*scalFac_b);
+	hc_CHP_c->Fill(CHP, MyWeight*scalFac_b);
+	hc_CHE_c->Fill(CHE, MyWeight*scalFac_b);
+	hc_svxM_c->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+	hc_svxEfr_c->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
+
+      }
+      else if ( n_b==0 && n_c==0 ){
+      
+	hc_M_l->Fill(dilep_mass, MyWeight*scalFac_b);
+	hc_Pt_l->Fill(dilep_pt, MyWeight*scalFac_b);
+	hc_njet_l->Fill(vect_jets.size(), MyWeight*scalFac_b);
+	hc_ncjet_l->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+	hc_CSV_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+	hc_BJP_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
+	hc_CSV_ctag_l->Fill(CSV, MyWeight*scalFac_b);
+	hc_BJP_ctag_l->Fill(BJP, MyWeight*scalFac_b);
+	for (unsigned int ijet=0; ijet<vect_jets.size();++ijet)
+	  hc_CSV_all_l->Fill(vect_jets[ijet].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+      
+	hc_JPB_l->Fill(JPB, MyWeight*scalFac_b);
+	hc_CHP_l->Fill(CHP, MyWeight*scalFac_b);
+	hc_CHE_l->Fill(CHE, MyWeight*scalFac_b);
+	hc_svxM_l->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+	hc_svxEfr_l->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
+
+      }
+
+      if ( n_b_split>0 ){
+	hc_CSV_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+      }
+      if ( n_c_split>0 ){
+	hc_CSV_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
+      }
+
+
+    }
+      
+  }
+
 
 
 }
@@ -1550,14 +1745,12 @@ void ZcAnalyzer::beginJob () {
 
   // --- Initialize the counters: 
   for (int i=0; i<2; ++i){
-    for (int j=0; j<2; ++j){
-      n_ztautau[i][j]  = 0 ;
-      w_ztautau[i][j]  = 0.;
-      w2_ztautau[i][j] = 0.;
-      n_events[i][j]   = 0 ;
-      w_events[i][j]   = 0.;
-      w2_events[i][j]  = 0.;
-    }
+    n_ztautau[i]  = 0 ;
+    w_ztautau[i]  = 0.;
+    w2_ztautau[i] = 0.;
+    n_events[i]   = 0 ;
+    w_events[i]   = 0.;
+    w2_events[i]  = 0.;
   }
 
 }
@@ -1583,35 +1776,24 @@ void ZcAnalyzer::endJob () {
 
 
   // --- Printout the counters:
-  std::cout << "Z-->tautau yield (inclusive) = " 
-	    << n_ztautau[0][0] << " " 
-	    << n_ztautau[0][1] << std::endl;
-  std::cout << "Z-->tautau yield (tagged)    = " 
-	    << n_ztautau[1][0] << " " 
-	    << n_ztautau[1][1] << std::endl;
+  std::cout << "======================================================================" << std::endl;
+  std::cout << " " << pileupDT_ << " channel:" << std::endl;
+  std::cout <<  std::endl;
+  std::cout << "Z-->tautau yield (inclusive) = " << n_ztautau[0] << std::endl;
+  std::cout << "Z-->tautau yield (tagged)    = " << n_ztautau[1] << std::endl; 
   std::cout << "Z-->tautau weighted yield (inclusive) = "
-	    << w_ztautau[0][0] << " " << w2_ztautau[0][0] << " " 
-	    << w_ztautau[0][1] << " " << w2_ztautau[0][1] << std::endl;
+	    << w_ztautau[0] << " " << w2_ztautau[0] << std::endl;
   std::cout << "Z-->tautau weighted yield (tagged)    = " 
-	    << w_ztautau[1][0] << " " << w2_ztautau[1][0] << " " 
-	    << w_ztautau[1][1] << " " << w2_ztautau[1][1] << std::endl;
+	    << w_ztautau[1] << " " << w2_ztautau[1] << std::endl;
 
   std::cout <<  std::endl;
 
-  std::cout << "Yield (inclusive) = " 
-	    << n_events[0][0] << " " 
-	    << n_events[0][1] << std::endl;
-  std::cout << "Yield (tagged)    = " 
-	    << n_events[1][0] << " " 
-	    << n_events[1][1] << std::endl;
+  std::cout << "Yield (inclusive) = " << n_events[0] << std::endl;
+  std::cout << "Yield (tagged)    = " << n_events[1] << std::endl;
   std::cout << "Weighted yield (inclusive) = " 
-	    << w_events[0][0] << " " << w2_events[0][0] << " " 
-	    << w_events[0][1] << " " << w2_events[0][1] << std::endl;
+	    << w_events[0] << " " << w2_events[0] << std::endl;
   std::cout << "Weighted yield (tagged)    = "  
-	    << w_events[1][0] << " " << w2_events[1][0] << " " 
-	    << w_events[1][1] << " " << w2_events[1][1] << std::endl;
-  
-
+	    << w_events[1] << " " << w2_events[1] << std::endl;
 
 }
 
