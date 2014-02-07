@@ -9,7 +9,7 @@ import math
 #channel = "TTbar"
 #channel = 'WW'
 
-path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v02/"
+path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v01/"
 
 w = {'Wj'        : 31200./57709905.,
      'WW'        : 54.838/10000431.,
@@ -19,9 +19,9 @@ w = {'Wj'        : 31200./57709905.,
      'DYJetsToLL': 3503.71/30459503.}
 
 
-lumi_e  = 19789.0
-lumi_mu = 19751.0
-
+lumi_ee = 19789.0
+lumi_mm = 19751.0
+lumi_em = 19780.0
 
 def main():
 
@@ -47,7 +47,7 @@ def main():
     p = subprocess.Popen(['ls', path+channel],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, err = p.communicate()
 
-    n_ele,err_ele,n_muo,err_muo = 0.,0.,0.,0.
+    n_ee, err_ee, n_mm, err_mm, n_em, err_em = 0., 0., 0., 0., 0., 0.
 
     for idir in output.split():
         print idir
@@ -62,28 +62,38 @@ def main():
                 if counter==1:
                     print counter, line.split()
                     if not is_tautau:
-                        n_ele   += float(line.split()[4])
-                        err_ele += float(line.split()[5])
+                        n_ee   += float(line.split()[4])
+                        err_ee += float(line.split()[5])
                     else:
-                        n_ele   += float(line.split()[4])
-                        err_ele += float(line.split()[5])
+                        n_ee   += float(line.split()[4])
+                        err_ee += float(line.split()[5])
 
                 if counter==2:
                     print counter, line.split()
                     if not is_tautau:
-                        n_muo   += float(line.split()[4])
-                        err_muo += float(line.split()[5])
+                        n_mm   += float(line.split()[4])
+                        err_mm += float(line.split()[5])
                     else:
-                        n_muo   += float(line.split()[4])
-                        err_muo += float(line.split()[5])
+                        n_mm   += float(line.split()[4])
+                        err_mm += float(line.split()[5])
+
+                if counter==3:
+                    print counter, line.split()
+                    if not is_tautau:
+                        n_em   += float(line.split()[4])
+                        err_em += float(line.split()[5])
+                    else:
+                        n_em   += float(line.split()[4])
+                        err_em += float(line.split()[5])
                         
 
         f.close()
 
-    #print  n_ele,err_ele,n_muo,err_muo
+    #print  n_ee,err_ee,n_mm,err_mm
     print "\n"
-    print "electron channel: %f +- %f" % (n_ele*scale*lumi_e,math.sqrt(err_ele)*scale*lumi_e)
-    print "muon channel:     %f +- %f" % (n_muo*scale*lumi_mu,math.sqrt(err_muo)*scale*lumi_mu)
+    print "dielectron channel:    %f +- %f" % (n_ee*scale*lumi_ee,math.sqrt(err_ee)*scale*lumi_ee)
+    print "dimuon channel:        %f +- %f" % (n_mm*scale*lumi_mm,math.sqrt(err_mm)*scale*lumi_mm)
+    print "electron-muon channel: %f +- %f" % (n_em*scale*lumi_em,math.sqrt(err_em)*scale*lumi_em)
         
 
 if __name__ == "__main__":
