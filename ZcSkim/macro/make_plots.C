@@ -40,7 +40,7 @@ const double mc_lumi[] = { 31200./57709905.,    // Wj
 
 
 void make_plots(const TString h_name="h_M", const bool log_scale=true, const bool bkg_subtraction=false, 
-		const int rebin=0, const double x_low=-999., const double x_up=-999.){
+		const int rebin=0, const bool save_plots=false, const double x_low=-999., const double x_up=-999.){
 
 
   // ----------------------------------------------------------------------------------
@@ -48,13 +48,15 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
 
   const int channels_to_plot = 3;
 
-  const TString version = "v02";
+  const TString version = "v06";
 
   const TString path    = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/" + version;
 
   const TString dir[] = { "anaEle/",
 			  "anaMuo/",
 			  "anaEleMuo/" };
+
+  const TString channel[] = { "ee", "mm", "em"};
 
   vector <TString> file_names;
   // --- data
@@ -116,7 +118,7 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
       // --- kludge for the DY file      
       if ( file_names[ifile].Contains("DYJetsToLL") ) {
 
-	h[icha][ifile-1]   = (TH1F*) f[ifile]->Get(dir[icha] + h_name + "_tt")->Clone(); 
+	h[icha][ifile-1] = (TH1F*) f[ifile]->Get(dir[icha] + h_name + "_tt")->Clone(); 
 	h[icha][ifile  ] = (TH1F*) f[ifile]->Get(dir[icha] + h_name + "_b")->Clone(); 
 	h[icha][ifile+1] = (TH1F*) f[ifile]->Get(dir[icha] + h_name + "_c")->Clone(); 
 	h[icha][ifile+2] = (TH1F*) f[ifile]->Get(dir[icha] + h_name + "_l")->Clone(); 
@@ -217,9 +219,9 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
   //  make the stacks and plot
 
   for ( int icha=0; icha<channels_to_plot; ++icha ){
-  
-    if ( c[icha]) 
-      delete c[icha];
+
+    if ( c[icha] ) 
+      delete  c[icha];
 
     // -- set colors
     h[icha][1]->SetFillColor(kYellow-7);
@@ -229,7 +231,7 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
     h[icha][5]->SetFillColor(kRed+1);
     h[icha][6]->SetFillColor(kGreen+2);
     h[icha][7]->SetFillColor(kCyan+1);
-    h[icha][8]->SetFillColor(kSpring-8);
+    h[icha][8]->SetFillColor(kBlue-8);
     h[icha][9]->SetFillColor(kViolet+2);
     h[icha][10]->SetFillColor(kMagenta+1);
 
@@ -294,9 +296,9 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
 
     if (bkg_subtraction) {
       leg->AddEntry(h[icha][0],"bkg-subtracted data","p");
-      leg->AddEntry(h[icha][8],"Z(#rightarrow ee)+b","f");
-      leg->AddEntry(h[icha][9],"Z(#rightarrow ee)+c","f");
-      leg->AddEntry(h[icha][10],"Z(#rightarrow ee)+dusg","f");
+      leg->AddEntry(h[icha][8],"Z+b","f");
+      leg->AddEntry(h[icha][9],"Z+c","f");
+      leg->AddEntry(h[icha][10],"Z+dusg","f");
     } else {
       leg->AddEntry(h[icha][0],"Z+jets","p");
       leg->AddEntry(h[icha][5],"t#bar{t}","f");
@@ -364,6 +366,8 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
 
     OLine->Draw();
 
+    if (save_plots)
+      c[icha]->SaveAs( h_name + "_" + channel[icha] + ".pdf");
 
 
   }
