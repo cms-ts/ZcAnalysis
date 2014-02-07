@@ -21,64 +21,44 @@
 
 // system include files
 #include <memory>
-#include <string>
 #include <iostream>
-#include <sstream>
-#include <cmath>
-#include <stddef.h>
+#include <string>
 
-// user include files
+
+// CMSSW include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+
 #include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
-#include "DataFormats/Common/interface/View.h"
+
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+
+#include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
+
+
+// root include files
+#include <Math/VectorUtil.h>
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TProfile2D.h"
-#include "TProfile.h"
-#include "TFile.h"
-#include "TLorentzVector.h"
-#include "TRandom3.h"
-#include "DataFormats/PatCandidates/interface/TriggerEvent.h"
-#include "PhysicsTools/PatUtils/interface/TriggerHelper.h"
-#include "PhysicsTools/CandUtils/interface/CandCombiner.h"
-#include "CommonTools/Utils/interface/MassRangeSelector.h"
-#include "DataFormats/Common/interface/RefProd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
-#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
-#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 
 
+// user include files
 #include "table.h"
 
 
@@ -278,8 +258,6 @@ private:
   TH1F* h_CSV;
   TH1F* h_CSV_b;
   TH1F* h_CSV_c;
-  TH1F* h_CSV_b_split;
-  TH1F* h_CSV_c_split;
   TH1F* h_CSV_l;
   TH1F* h_CSV_tt;
 
@@ -326,6 +304,12 @@ private:
   TH1F* hc_ncjet_l;
   TH1F* hc_ncjet_tt;
 
+  TH1F* hc_Pt_cjet1;
+  TH1F* hc_Pt_cjet1_b;
+  TH1F* hc_Pt_cjet1_c;
+  TH1F* hc_Pt_cjet1_l;
+  TH1F* hc_Pt_cjet1_tt;
+
   TH1F* hc_MET;
   TH1F* hc_MET_b;
   TH1F* hc_MET_c;
@@ -342,8 +326,6 @@ private:
   TH1F* hc_CSV_b;
   TH1F* hc_CSV_c;
   TH1F* hc_CSV_l;
-  TH1F* hc_CSV_b_split;
-  TH1F* hc_CSV_c_split;
   TH1F* hc_CSV_tt;
 
   TH1F* hc_CSV_ctag;
@@ -393,6 +375,12 @@ private:
   TH1F* hc_svxM_c;
   TH1F* hc_svxM_l;
   TH1F* hc_svxM_tt;
+
+  TH1F* hc_svxM_corr;
+  TH1F* hc_svxM_corr_b;
+  TH1F* hc_svxM_corr_c;
+  TH1F* hc_svxM_corr_l;
+  TH1F* hc_svxM_corr_tt;
 
   TH1F* hc_svxEfr;
   TH1F* hc_svxEfr_b;
@@ -554,13 +542,6 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   h_CSV_tt = fs->make < TH1F > ("h_CSV_tt", htitle.data(), 100, 0., 1.);
   h_CSV_tt ->Sumw2();
 
-  htitle        = Form("%s - CSV discriminant (g#rightarrow b#bar{b});CSV", channel.data());
-  h_CSV_b_split = fs->make < TH1F > ("h_CSV_b_split", htitle.data(), 100, 0., 1.);
-  h_CSV_b_split ->Sumw2();
-  htitle        = Form("%s - CSV discriminant (g#rightarrow c#bar{c});CSV", channel.data());
-  h_CSV_c_split = fs->make < TH1F > ("h_CSV_c_split", htitle.data(), 100, 0., 1.);
-  h_CSV_c_split ->Sumw2();
-
   htitle       = Form("%s (all jets) - CSV discriminant;CSV", channel.data());
   h_CSV_all    = fs->make < TH1F > ("h_CSV_all", htitle.data(), 100, 0., 1.);
   h_CSV_all    ->Sumw2();
@@ -606,6 +587,7 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   htitle   = Form("%s - before tagging (dusg)", channel.data());
   h_eff_l = fs->make < TH2F > ("h_eff_l", htitle.data(), 16, xbins, 8, ybins);
   h_eff_l->Sumw2();
+
 
 
   // ------------------------------------------------------------------------------------------------
@@ -665,20 +647,37 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
 
   // c-tagged jet multiplicity
   htitle      = Form("%s - c-jet multiplicity;N_{c-jet}", channel.data());
-  hc_ncjet    = fs->make < TH1F > ("hc_njet",    htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet    = fs->make < TH1F > ("hc_ncjet",    htitle.data(), 10, 0.5, 10.5);
   hc_ncjet    ->Sumw2();
   htitle      = Form("%s - c-jet multiplicity (b);N_{c-jet}", channel.data());
-  hc_ncjet_b  = fs->make < TH1F > ("hc_njet_b",  htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_b  = fs->make < TH1F > ("hc_ncjet_b",  htitle.data(), 10, 0.5, 10.5);
   hc_ncjet_b  ->Sumw2();
   htitle      = Form("%s - c-jet multiplicity (c);N_{c-jet}", channel.data());
-  hc_ncjet_c  = fs->make < TH1F > ("hc_njet_c",  htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_c  = fs->make < TH1F > ("hc_ncjet_c",  htitle.data(), 10, 0.5, 10.5);
   hc_ncjet_c  ->Sumw2();
   htitle      = Form("%s - c-jet multiplicity (dusg);N_{c-jet}", channel.data());
-  hc_ncjet_l  = fs->make < TH1F > ("hc_njet_l",  htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_l  = fs->make < TH1F > ("hc_ncjet_l",  htitle.data(), 10, 0.5, 10.5);
   hc_ncjet_l  ->Sumw2();
   htitle      = Form("%s - c-jet multiplicity (Z#rightarrow#tau#tau);N_{c-jet}", channel.data());
-  hc_ncjet_tt = fs->make < TH1F > ("hc_njet_tt", htitle.data(), 10, 0.5, 10.5);
+  hc_ncjet_tt = fs->make < TH1F > ("hc_ncjet_tt", htitle.data(), 10, 0.5, 10.5);
   hc_ncjet_tt ->Sumw2();
+
+  // PT of the leading c-tagged jet
+  htitle         = Form("%s - P_{T};P_{T}^{jet} [GeV/c]", channel.data());
+  hc_Pt_cjet1    = fs->make < TH1F > ("hc_Pt_cjet1", htitle.data(), 500, 0., 2000.);
+  hc_Pt_cjet1    ->Sumw2();
+  htitle         = Form("%s - P_{T} (b);P_{T}^{jet} [GeV/c]", channel.data());
+  hc_Pt_cjet1_b  = fs->make < TH1F > ("hc_Pt_cjet1_b", htitle.data(), 500, 0., 2000.);
+  hc_Pt_cjet1_b  ->Sumw2();
+  htitle         = Form("%s - P_{T} (c);P_{T}^{jet} [GeV/c]", channel.data());
+  hc_Pt_cjet1_c  = fs->make < TH1F > ("hc_Pt_cjet1_c", htitle.data(), 500, 0., 2000.);
+  hc_Pt_cjet1_c  ->Sumw2();
+  htitle         = Form("%s - P_{T} (dusg);P_{T}^{jet} [GeV/c]", channel.data());
+  hc_Pt_cjet1_l  = fs->make < TH1F > ("hc_Pt_cjet1_l", htitle.data(), 500, 0., 2000.);
+  hc_Pt_cjet1_l  ->Sumw2();
+  htitle         = Form("%s - P_{T} (Z#rightarrow#tau#tau);P_{T}^{jet} [GeV/c]", channel.data());
+  hc_Pt_cjet1_tt = fs->make < TH1F > ("hc_Pt_cjet1_tt", htitle.data(), 500, 0., 2000.);
+  hc_Pt_cjet1_tt ->Sumw2();
 
   // MET
   htitle    = Form("%s - MET;MET [GeV]", channel.data());
@@ -730,13 +729,6 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   htitle    = Form("%s - CSV discriminant (Z#rightarrow#tau#tau);CSV", channel.data());
   hc_CSV_tt = fs->make < TH1F > ("hc_CSV_tt", htitle.data(), 100, 0., 1.);
   hc_CSV_tt ->Sumw2();
-
-  htitle         = Form("%s - CSV discriminant (g#rightarrow b#bar{b});CSV", channel.data());
-  hc_CSV_b_split = fs->make < TH1F > ("hc_CSV_b_split", htitle.data(), 100, 0., 1.);
-  hc_CSV_b_split ->Sumw2();
-  htitle         = Form("%s - CSV discriminant (g#rightarrow c#bar{c});CSV", channel.data());
-  hc_CSV_c_split = fs->make < TH1F > ("hc_CSV_c_split", htitle.data(), 100, 0., 1.);
-  hc_CSV_c_split ->Sumw2();
 
   htitle        = Form("%s (all jets) - CSV discriminant;CSV", channel.data());
   hc_CSV_all    = fs->make < TH1F > ("hc_CSV_all", htitle.data(), 100, 0., 1.);
@@ -855,36 +847,52 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   hc_CHE_tt ->Sumw2();
 
   // Secondary VTX mass
-  htitle     = Form("%s - Secondary VTX mass;M_{VTX} [GeV/c^{2}]", channel.data());
-  hc_svxM    = fs->make < TH1F > ("hc_svxM",    htitle.data(), 100, 0., 10.);
+  htitle     = Form("%s - Secondary VTX mass;M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM    = fs->make < TH1F > ("hc_svxM",    htitle.data(), 200, 0., 10.);
   hc_svxM    ->Sumw2();
-  htitle     = Form("%s - Secondary VTX mass (b);M_{VTX} [GeV/c^{2}]", channel.data());
-  hc_svxM_b  = fs->make < TH1F > ("hc_svxM_b",  htitle.data(), 100, 0., 10.);
+  htitle     = Form("%s - Secondary VTX mass (b);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_b  = fs->make < TH1F > ("hc_svxM_b",  htitle.data(), 200, 0., 10.);
   hc_svxM_b  ->Sumw2();
-  htitle     = Form("%s - Secondary VTX mass (c);M_{VTX} [GeV/c^{2}]", channel.data());
-  hc_svxM_c  = fs->make < TH1F > ("hc_svxM_c",  htitle.data(), 100, 0., 10.);
+  htitle     = Form("%s - Secondary VTX mass (c);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_c  = fs->make < TH1F > ("hc_svxM_c",  htitle.data(), 200, 0., 10.);
   hc_svxM_c  ->Sumw2();
-  htitle     = Form("%s - Secondary VTX mass (dusg);M_{VTX} [GeV/c^{2}]", channel.data());
-  hc_svxM_l  = fs->make < TH1F > ("hc_svxM_l",  htitle.data(), 100, 0., 10.);
+  htitle     = Form("%s - Secondary VTX mass (dusg);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_l  = fs->make < TH1F > ("hc_svxM_l",  htitle.data(), 200, 0., 10.);
   hc_svxM_l  ->Sumw2();
-  htitle     = Form("%s - Secondary VTX mass (Z#rightarrow#tau#tau);M_{VTX} [GeV/c^{2}]", channel.data());
-  hc_svxM_tt = fs->make < TH1F > ("hc_svxM_tt", htitle.data(), 100, 0., 10.);
+  htitle     = Form("%s - Secondary VTX mass (Z#rightarrow#tau#tau);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_tt = fs->make < TH1F > ("hc_svxM_tt", htitle.data(), 200, 0., 10.);
   hc_svxM_tt ->Sumw2();
   
+  htitle          = Form("%s - Secondary VTX mass;M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_corr    = fs->make < TH1F > ("hc_svxM_corr",    htitle.data(), 200, 0., 10.);
+  hc_svxM_corr    ->Sumw2();
+  htitle          = Form("%s - Secondary VTX mass (b);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_corr_b  = fs->make < TH1F > ("hc_svxM_corr_b",  htitle.data(), 200, 0., 10.);
+  hc_svxM_corr_b  ->Sumw2();
+  htitle          = Form("%s - Secondary VTX mass (c);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_corr_c  = fs->make < TH1F > ("hc_svxM_corr_c",  htitle.data(), 200, 0., 10.);
+  hc_svxM_corr_c  ->Sumw2();
+  htitle          = Form("%s - Secondary VTX mass (dusg);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_corr_l  = fs->make < TH1F > ("hc_svxM_corr_l",  htitle.data(), 200, 0., 10.);
+  hc_svxM_corr_l  ->Sumw2();
+  htitle          = Form("%s - Secondary VTX mass (Z#rightarrow#tau#tau);M_{SVX} [GeV/c^{2}]", channel.data());
+  hc_svxM_corr_tt = fs->make < TH1F > ("hc_svxM_corr_tt", htitle.data(), 200, 0., 10.);
+  hc_svxM_corr_tt ->Sumw2();
+  
   // Secondary VTX energy fraction
-  htitle       = Form("%s - Sec. VTX energy fraction;Energy fraction", channel.data());
+  htitle       = Form("%s - Sec. VTX energy fraction;SVX energy fraction", channel.data());
   hc_svxEfr    = fs->make < TH1F > ("hc_svxEfr",    htitle.data(), 100, 0., 1.);
   hc_svxEfr    ->Sumw2();
-  htitle       = Form("%s - Sec. VTX energy fraction (b);Energy fraction", channel.data());
+  htitle       = Form("%s - Sec. VTX energy fraction (b);SVX energy fraction", channel.data());
   hc_svxEfr_b  = fs->make < TH1F > ("hc_svxEfr_b",  htitle.data(), 100, 0., 1.);
   hc_svxEfr_b  ->Sumw2();
-  htitle       = Form("%s - Sec. VTX energy fraction (c);Energy fraction", channel.data());
+  htitle       = Form("%s - Sec. VTX energy fraction (c);SVX energy fraction", channel.data());
   hc_svxEfr_c  = fs->make < TH1F > ("hc_svxEfr_c",  htitle.data(), 100, 0., 1.);
   hc_svxEfr_c  ->Sumw2();
-  htitle       = Form("%s - Sec. VTX energy fraction (dusg);Energy fraction", channel.data());
+  htitle       = Form("%s - Sec. VTX energy fraction (dusg);SVX energy fraction", channel.data());
   hc_svxEfr_l  = fs->make < TH1F > ("hc_svxEfr_l",  htitle.data(), 100, 0., 1.);
   hc_svxEfr_l  ->Sumw2();
-  htitle       = Form("%s - Sec. VTX energy fraction (Z#rightarrow#tau#tau);Energy fraction", channel.data());
+  htitle       = Form("%s - Sec. VTX energy fraction (Z#rightarrow#tau#tau);SVX energy fraction", channel.data());
   hc_svxEfr_tt = fs->make < TH1F > ("hc_svxEfr_tt", htitle.data(), 100, 0., 1.);
   hc_svxEfr_tt ->Sumw2();
   
@@ -939,8 +947,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   bool is_tautau = false;
   unsigned int n_b = 0;
   unsigned int n_c = 0;
-  unsigned int n_b_split = 0;
-  unsigned int n_c_split = 0;
 
   double MyWeight = 1.;
 
@@ -948,7 +954,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   // ------------------------------------------------------------------------------------------------
   //  Access event information
-
 
   // Get electron collection
   edm::Handle < pat::ElectronCollection > electrons;
@@ -1007,7 +1012,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     MyWeight = LumiWeights_.weight(Tnpv);
 
   }
-
  
 
   edm::Handle<GenEventInfoProduct> genEventInfoHandle;
@@ -1155,10 +1159,12 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 
 
-  // --- Identify Z->tautau events: 
+  // --- Identify Z->tautau and Z+b/c events: 
 
   if (isMC) {
-    for (std::vector <reco::GenParticle>::const_iterator thepart = genPart->begin(); thepart != genPart->end(); thepart++) {
+    for (std::vector <reco::GenParticle>::const_iterator thepart  = genPart->begin(); 
+	                                                 thepart != genPart->end(); 
+	                                                 ++thepart) {
       if ((int) abs(thepart->pdgId()) == 23) {
         for (UInt_t i=0; i<thepart->numberOfDaughters(); i++){
 	  if (abs(thepart->daughter(i)->pdgId()) == 15 && thepart->daughter(i)->status()==3){
@@ -1166,6 +1172,14 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	  }
         }
       }
+      
+      if ( thepart->pt() > 25. &&  fabs(thepart->eta())<2.4 ) {
+	
+ 	if ( fabs(thepart->pdgId()) == 5 ) n_b++; 
+ 	if ( fabs(thepart->pdgId()) == 4 ) n_c++; 
+
+      }
+
     }
   }
 
@@ -1181,9 +1195,9 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
   if (vertices->size() > 0) {
     const reco::Vertex* theVertex = &(vertices->front());
-    if ( theVertex->ndof()                 >  5 &&
-         fabs(theVertex->z())              < 24.&&
-         fabs(theVertex->position().rho()) <  2.) vtx_cut = true;
+    if ( theVertex->ndof()                 >  5  &&
+         fabs(theVertex->z())              < 24. &&
+         fabs(theVertex->position().rho()) <  2. ) vtx_cut = true;
   } 
 
 
@@ -1220,7 +1234,10 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
     // --- JER corrections
     double jerCorr = 1.;
-    if (isMC && jet->genJet()) jerCorr = jetResolutionCorrection(jet->eta(), jet->pt(), jet->genJet()->pt(), par2_);
+    if (isMC && jet->genJet()) jerCorr = jetResolutionCorrection( jet->eta(), 
+								  jet->pt(), 
+								  jet->genJet()->pt(), 
+								  par2_ );
     
     pat::Jet jetNew = (*jet);
     math::XYZTLorentzVector jetNew_p4 = jetNew.p4();
@@ -1241,38 +1258,23 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
     if ( ( discrCSV>0.244 && discrCSV<0.898 && fabs(jetNew.eta())<2.4 ) ){
 
-      //reco::SecondaryVertexTagInfo const * sv = jetNew.tagInfoSecondaryVertex("secondaryVertex");
-      //if ( sv && sv->nVertices()>0 )
-      vect_cjets.push_back(jetNew);
+      reco::SecondaryVertexTagInfo const * sv = jetNew.tagInfoSecondaryVertex("secondaryVertex");
+      if ( sv && sv->nVertices()>0 )
+	vect_cjets.push_back(jetNew);
 
     }
 
-    // --- check the MC truth:
-    bool hasb = false;
-    bool hasc = false;
-    if ( isMC && jet->genJet() ) {
 
-      vector <const reco::GenParticle*> genp =  jet->genJet()->getGenConstituents();
-      for (unsigned int ipart=0; ipart<genp.size(); ++ipart){
+    // --- Fill histograms to calculate the CSV tagging efficiencies
+    if ( isMC ) {
 
-	const reco::Candidate* mot = genp[ipart]->mother(0);
-
-	while (mot){
-	  if ( abs(mot->pdgId()) == 5 ) hasb = true;
-	  if ( abs(mot->pdgId()) == 4 ) hasc = true;
-	  mot = mot->mother(0);
-	}
-      }
-
-
-      // --- Fill histograms to calculate the CSV tagging efficiencies
       if ( fabs(jetNew.partonFlavour())==5 )
 	h_eff_b->Fill(jetNew.pt(),jetNew.eta());
       else if ( fabs(jetNew.partonFlavour())==4 )
 	h_eff_c->Fill(jetNew.pt(),jetNew.eta());
       else
 	h_eff_l->Fill(jetNew.pt(),jetNew.eta());
-
+      
       if ( discrCSV>0.244 ){
 	if ( fabs(jetNew.partonFlavour())==5 )
 	  hc_CSVL_eff_b->Fill(jetNew.pt(),jetNew.eta());
@@ -1281,7 +1283,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	else
 	  hc_CSVL_eff_l->Fill(jetNew.pt(),jetNew.eta());
       }
-
+      
       if ( discrCSV>0.898 ){
 	if ( fabs(jetNew.partonFlavour())==5 )
 	  hc_CSVT_eff_b->Fill(jetNew.pt(),jetNew.eta());
@@ -1294,32 +1296,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
 
 
-    if ( hasb ) {
-      if ( fabs(jetNew.partonFlavour())==5 ){
-	has_b.push_back(1);
-	n_b++;
-      }
-      else {
-	has_b.push_back(2);
-	n_b_split++;
-      }
-    }
-    else  has_b.push_back(0);
-
-    if ( hasc ) {
-      if ( fabs(jetNew.partonFlavour())==4 ){
-	has_c.push_back(1);
-	n_c++;
-      }
-      else {
-	has_c.push_back(2);
-	n_c_split++;
-      }
-    }
-    else  has_c.push_back(0);
-
-
-  } // for jet
+  } // end loop over jets
 
   
 
@@ -1331,48 +1308,47 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 
   // --- Z Pt reweighting:
-//  if ( ee_event ){
-//    
-//    double w_Zpt = 0.940801 +
-//      0.0125043   * dilep_pt -
-//      0.000900183 * pow(dilep_pt,2) +
-//      2.57315e-05 * pow(dilep_pt,3) -
-//      3.25401e-07 * pow(dilep_pt,4) +
-//      1.77911e-09 * pow(dilep_pt,5) -
-//      3.15907e-12 * pow(dilep_pt,6);
-//   
-//    if ( dilep_pt > 80. ) w_Zpt = 1.;
-//
-//    MyWeight *= w_Zpt;
-//
-//    //cout <<  dilep_pt << " " << w_Zpt << endl;
-//
-//
-//  }
-//
-//  if ( mm_event ){
-//    
-//    double w_Zpt = 0.963693 + 
-//      0.0115836   * dimuo_pt -
-//      0.000900126 * pow(dimuo_pt,2) +
-//      2.8187e-05  * pow(dimuo_pt,3) -
-//      4.10665e-07 * pow(dimuo_pt,4) +
-//      2.74203e-09 * pow(dimuo_pt,5) -
-//      6.6021e-12  * pow(dimuo_pt,6);
-//    
-//    if ( dimuo_pt > 80. ) w_Zpt = 1.;
-//
-//    MyWeight *= w_Zpt;
-//
-//    //cout << dimuo_pt << " " <<  w_Zpt << endl;
-//
-//  }
+  //if ( ee_event ){
+  //  
+  //  double w_Zpt = 0.940801 +
+  //    0.0125043   * dilep_pt -
+  //    0.000900183 * pow(dilep_pt,2) +
+  //    2.57315e-05 * pow(dilep_pt,3) -
+  //    3.25401e-07 * pow(dilep_pt,4) +
+  //    1.77911e-09 * pow(dilep_pt,5) -
+  //    3.15907e-12 * pow(dilep_pt,6);
+  // 
+  //  if ( dilep_pt > 80. ) w_Zpt = 1.;
+  //
+  //  MyWeight *= w_Zpt;
+  //
+  //  //cout <<  dilep_pt << " " << w_Zpt << endl;
+  //
+  //
+  //}
+  //
+  //if ( mm_event ){
+  //  
+  //  double w_Zpt = 0.963693 + 
+  //    0.0115836   * dimuo_pt -
+  //    0.000900126 * pow(dimuo_pt,2) +
+  //    2.8187e-05  * pow(dimuo_pt,3) -
+  //    4.10665e-07 * pow(dimuo_pt,4) +
+  //    2.74203e-09 * pow(dimuo_pt,5) -
+  //    6.6021e-12  * pow(dimuo_pt,6);
+  //  
+  //  if ( dimuo_pt > 80. ) w_Zpt = 1.;
+  //
+  //  MyWeight *= w_Zpt;
+  //
+  //  //cout << dimuo_pt << " " <<  w_Zpt << endl;
+  //
+  //}
 
 
 
 
   double scalFac_b = ctagWeight(isMC, vect_jets);
-
 
 
   h_MET->Fill(met->empty() ? 0. : (*met)[0].et(), MyWeight);
@@ -1481,7 +1457,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
     else {
 
-      //if ( n_b>0 && n_c==0 ){
       if ( n_b>0 ){
       
 	h_M_b->Fill(dilep_mass, MyWeight);
@@ -1519,13 +1494,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
       
       }
 
-      if ( n_b_split>0 ){
-	h_CSV_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      }
-      if ( n_c_split>0 ){
-	h_CSV_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight);
-      }
-
     }
     
   }
@@ -1541,10 +1509,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   if ( vect_cjets.size()==0 ) return;
 
 
-  // ------------------------------------------------------------------------------------------------
-  //  Z+c histograms
-
-  
   // Get the b-tagging discriminants for the leading c-tagged jet
   double CSV = vect_cjets[0].bDiscriminator("combinedSecondaryVertexBJetTags");
   double BJP = vect_cjets[0].bDiscriminator("jetBProbabilityBJetTags");
@@ -1553,33 +1517,77 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   double CHE = vect_cjets[0].bDiscriminator("trackCountingHighEffBJetTags");
 
 
-  double SecVtx_mass  = 0.;
-  double SecVtx_efrac = 0.;
+  double SecVtx_mass      = 0.;
+  double SecVtx_mass_corr = 0.;
+  double SecVtx_efrac     = 0.;
 
   reco::SecondaryVertexTagInfo const * svTagInfos = vect_cjets[0].tagInfoSecondaryVertex("secondaryVertex");
+  reco::TrackIPTagInfo const * ipTagInfos = vect_cjets[0].tagInfoTrackIP("impactParameter");
+
+
   if (svTagInfos && svTagInfos->nVertices() > 0) {
 
-    // Total momentum and mass of the secondary vertex tracks 
-    const reco::Vertex &vertex = svTagInfos->secondaryVertex(0);
-    reco::TrackKinematics vertexKinematics(vertex);
+    reco::TrackKinematics vertexKinematics;
+    reco::TrackKinematics allKinematics;
+ 
+  
+  // --- Total momentum of the secondary vertex tracks:
+
+    for (unsigned int isvx=0; isvx<svTagInfos->nVertices(); ++isvx) {
+
+      const reco::Vertex &vertex = svTagInfos->secondaryVertex(isvx);
+      bool hasRefittedTracks = vertex.hasRefittedTracks();
+
+      for (reco::Vertex::trackRef_iterator track  = vertex.tracks_begin(); 
+	                                   track != vertex.tracks_end(); 
+	                                   ++track) {
+
+	double w = vertex.trackWeight(*track);
+
+	if (w < 0.5)
+	  continue;
+	if (hasRefittedTracks) {
+	  reco::Track actualTrack = vertex.refittedTrack(*track);
+	  vertexKinematics.add(actualTrack, w);
+	} else {
+	  vertexKinematics.add(**track, w);
+	}
+      }
+      
+    }
     math::XYZTLorentzVector vtxTrkMom = vertexKinematics.weightedVectorSum();
     SecVtx_mass = vtxTrkMom.M();
 
-    // Total momentum of all jet tracks 
-    ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > jetTrkMom;
-    const double kPionMass = 0.13957018;
-    for (size_t itrack=0; itrack<vect_cjets[0].associatedTracks().size(); ++itrack) {
-      ROOT::Math::LorentzVector< ROOT::Math::PxPyPzM4D<double> > trkMom;
-      trkMom.SetPx( vect_cjets[0].associatedTracks()[itrack]->px() );
-      trkMom.SetPy( vect_cjets[0].associatedTracks()[itrack]->py() );
-      trkMom.SetPz( vect_cjets[0].associatedTracks()[itrack]->pz() );
-      trkMom.SetM (kPionMass);
-      jetTrkMom += trkMom;
-    }
-    SecVtx_efrac = vtxTrkMom.P()/jetTrkMom.P();
+    // Apply the SVX mass correction:
+    GlobalVector dir = svTagInfos->flightDirection(0);
+    double vertexPt2 = math::XYZVector(dir.x(), dir.y(), dir.z()).Cross(vtxTrkMom).Mag2() / dir.mag2();
+    SecVtx_mass_corr = std::sqrt(SecVtx_mass*SecVtx_mass + vertexPt2) + std::sqrt(vertexPt2);
 
+
+    // --- Total momentum of all jet tracks:
+
+    const edm::RefVector<reco::TrackCollection> &tracks = ipTagInfos->selectedTracks();
+     
+    for(edm::RefVector<reco::TrackCollection>::const_iterator track  = tracks.begin(); 
+	                                                      track != tracks.end(); 
+	                                                      ++track) {
+      allKinematics.add(**track);
+    
+    }
+    math::XYZTLorentzVector jetTrkMom = allKinematics.weightedVectorSum();
+
+    // Calculate the SVX/jet energy ratio:
+    if (allKinematics.numberOfTracks())
+      SecVtx_efrac = vtxTrkMom.E() / jetTrkMom.E();
+    else
+      SecVtx_efrac = 1.;
+  
   }
 
+
+
+  // ------------------------------------------------------------------------------------------------
+  //  Z+c histograms
 
 
   if (!is_tautau){
@@ -1592,6 +1600,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     hc_Pt->Fill(dilep_pt, MyWeight*scalFac_b);
     hc_njet->Fill(vect_jets.size(), MyWeight*scalFac_b);
     hc_ncjet->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+    hc_Pt_cjet1->Fill(vect_cjets[0].pt(), MyWeight*scalFac_b);
     
     hc_CSV->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
     hc_BJP->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
@@ -1604,6 +1614,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     hc_CHP->Fill(CHP, MyWeight*scalFac_b);
     hc_CHE->Fill(CHE, MyWeight*scalFac_b);
     hc_svxM->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+    hc_svxM_corr->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
     hc_svxEfr->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
 
   }
@@ -1622,6 +1633,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
       hc_njet_tt->Fill(vect_jets.size(), MyWeight*scalFac_b);
       hc_ncjet_tt->Fill(vect_cjets.size(), MyWeight*scalFac_b);
 
+      hc_Pt_cjet1_tt->Fill(vect_cjets[0].pt(), MyWeight*scalFac_b);
+
       hc_CSV_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
       hc_BJP_tt->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
       hc_CSV_ctag_tt->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
@@ -1633,6 +1646,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
       hc_CHP_tt->Fill(CHP, MyWeight*scalFac_b);
       hc_CHE_tt->Fill(CHE, MyWeight*scalFac_b);
       hc_svxM_tt->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+      hc_svxM_corr_tt->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
       hc_svxEfr_tt->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
 
     }
@@ -1646,6 +1660,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_njet_b->Fill(vect_jets.size(), MyWeight*scalFac_b);
 	hc_ncjet_b->Fill(vect_cjets.size(), MyWeight*scalFac_b);
 
+	hc_Pt_cjet1_b->Fill(vect_cjets[0].pt(), MyWeight*scalFac_b);
+
 	hc_CSV_b->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
 	hc_BJP_b->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
 	hc_CSV_ctag_b->Fill(CSV, MyWeight*scalFac_b);
@@ -1657,6 +1673,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_CHP_b->Fill(CHP, MyWeight*scalFac_b);
 	hc_CHE_b->Fill(CHE, MyWeight*scalFac_b);
 	hc_svxM_b->Fill(SecVtx_mass,  MyWeight*scalFac_b); 
+	hc_svxM_corr_b->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
 	hc_svxEfr_b->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
      
       }
@@ -1666,6 +1683,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_Pt_c->Fill(dilep_pt, MyWeight*scalFac_b);
 	hc_njet_c->Fill(vect_jets.size(), MyWeight*scalFac_b);
 	hc_ncjet_c->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+	hc_Pt_cjet1_c->Fill(vect_cjets[0].pt(), MyWeight*scalFac_b);
 
 	hc_CSV_c->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
 	hc_BJP_c->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
@@ -1678,6 +1697,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_CHP_c->Fill(CHP, MyWeight*scalFac_b);
 	hc_CHE_c->Fill(CHE, MyWeight*scalFac_b);
 	hc_svxM_c->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+	hc_svxM_corr_c->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
 	hc_svxEfr_c->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
 
       }
@@ -1687,6 +1707,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_Pt_l->Fill(dilep_pt, MyWeight*scalFac_b);
 	hc_njet_l->Fill(vect_jets.size(), MyWeight*scalFac_b);
 	hc_ncjet_l->Fill(vect_cjets.size(), MyWeight*scalFac_b);
+
+	hc_Pt_cjet1_l->Fill(vect_cjets[0].pt(), MyWeight*scalFac_b);
 
 	hc_CSV_l->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
 	hc_BJP_l->Fill(vect_jets[0].bDiscriminator("jetBProbabilityBJetTags"), MyWeight*scalFac_b);
@@ -1699,17 +1721,10 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_CHP_l->Fill(CHP, MyWeight*scalFac_b);
 	hc_CHE_l->Fill(CHE, MyWeight*scalFac_b);
 	hc_svxM_l->Fill(SecVtx_mass,  MyWeight*scalFac_b);
+	hc_svxM_corr_l->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
 	hc_svxEfr_l->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
 
       }
-
-      if ( n_b_split>0 ){
-	hc_CSV_b_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      }
-      if ( n_c_split>0 ){
-	hc_CSV_c_split->Fill(vect_jets[0].bDiscriminator("combinedSecondaryVertexBJetTags"), MyWeight*scalFac_b);
-      }
-
 
     }
       
@@ -1723,6 +1738,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 // ------------ method called once each job just before starting event loop ------------
 void ZcAnalyzer::beginJob () {
+
   jetCorrectionUncertainty_ = new JetCorrectionUncertainty(path_ + "/" + "Summer13_V4_DATA_Uncertainty_AK5PFchs.txt");
   LumiWeights_ = edm::LumiReWeighting(path_ + "/" + "pileup_" + pileupMC_ + ".root", path_ + "/" + "pileup_2012_" + pileupDT_ + ".root", "pileup", "pileup");
 
