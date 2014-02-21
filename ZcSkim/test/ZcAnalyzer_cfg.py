@@ -2,6 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ZcAnalysis")
 
+# --- These are needed to refit the secondary vertices
+process.load("TrackingTools/TransientTrack/TransientTrackBuilder_cfi")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'START53_V27::All'
+
+
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.cerr.threshold = cms.untracked.string("WARNING")
@@ -56,6 +64,7 @@ process.source = cms.Source("PoolSource",
                 #'file:/gpfs/grid/srm/cms/store/user/vieri/grid/v11/DoubleElectron_2012D_22Jan13/patTuple_956_1_K5J.root',
         )
 )
+
 
 
 process.anaEle = cms.EDProducer('ZcAnalyzer',

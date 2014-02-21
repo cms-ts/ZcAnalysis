@@ -49,6 +49,11 @@
 
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
 
 
@@ -333,6 +338,10 @@ private:
   TH1F* hc_CSV_ctag_c;
   TH1F* hc_CSV_ctag_l;
   TH1F* hc_CSV_ctag_tt;
+
+  TH1F* hc_sample_b;
+  TH1F* hc_sample_c;
+  TH1F* hc_sample_l;
 
   TH1F* hc_CSV_all;
   TH1F* hc_CSV_all_b;
@@ -762,6 +771,19 @@ ZcAnalyzer::ZcAnalyzer (const edm::ParameterSet & iConfig) {
   hc_CSV_ctag_tt = fs->make < TH1F > ("hc_CSV_ctag_tt", htitle.data(), 100, 0., 1.);
   hc_CSV_ctag_tt ->Sumw2();
 
+  htitle       = Form("%s - tagged sample composition (b);flavour", channel.data());
+  hc_sample_b  = fs->make < TH1F > ("hc_sample_b", htitle.data(), 22, 0., 22.);
+  hc_sample_b  ->Sumw2();
+
+  htitle       = Form("%s - tagged sample composition (c);flavour", channel.data());
+  hc_sample_c  = fs->make < TH1F > ("hc_sample_c", htitle.data(), 22, 0., 22.);
+  hc_sample_c  ->Sumw2();
+
+  htitle       = Form("%s - tagged sample composition (dusg);flavour", channel.data());
+  hc_sample_l  = fs->make < TH1F > ("hc_sample_l", htitle.data(), 22, 0., 22.);
+  hc_sample_l  ->Sumw2();
+
+
   // BJP discriminant
   htitle    = Form("%s - BJP discriminant;BJP", channel.data());
   hc_BJP    = fs->make < TH1F > ("hc_BJP", htitle.data(), 100, 0., 10.);
@@ -982,6 +1004,12 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   iEvent.getByLabel ("genParticles", genPart);
 
 
+  // Get the transient track builder:
+  edm::ESHandle<TransientTrackBuilder> transientTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get( "TransientTrackBuilder", transientTrackBuilder );
+
+
+
   if (lepton_=="electron" && !electrons.isValid()) return;
   if (lepton_=="muon" && !muons.isValid()) return;
   if (lepton_=="electron+muon" && !electrons.isValid()) return;
@@ -1174,10 +1202,10 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
       }
       
       if ( thepart->pt() > 25. &&  fabs(thepart->eta())<2.4 ) {
-	
- 	if ( fabs(thepart->pdgId()) == 5 ) n_b++; 
- 	if ( fabs(thepart->pdgId()) == 4 ) n_c++; 
-
+      	
+      	if ( fabs(thepart->pdgId()) == 5 ) n_b++; 
+      	if ( fabs(thepart->pdgId()) == 4 ) n_c++; 
+      
       }
 
     }
@@ -1265,6 +1293,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
 
 
+
     // --- Fill histograms to calculate the CSV tagging efficiencies
     if ( isMC ) {
 
@@ -1330,18 +1359,18 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
   //if ( mm_event ){
   //  
   //  double w_Zpt = 0.963693 + 
-  //    0.0115836   * dimuo_pt -
-  //    0.000900126 * pow(dimuo_pt,2) +
-  //    2.8187e-05  * pow(dimuo_pt,3) -
-  //    4.10665e-07 * pow(dimuo_pt,4) +
-  //    2.74203e-09 * pow(dimuo_pt,5) -
-  //    6.6021e-12  * pow(dimuo_pt,6);
+  //    0.0115836   * dilep_pt -
+  //    0.000900126 * pow(dilep_pt,2) +
+  //    2.8187e-05  * pow(dilep_pt,3) -
+  //    4.10665e-07 * pow(dilep_pt,4) +
+  //    2.74203e-09 * pow(dilep_pt,5) -
+  //    6.6021e-12  * pow(dilep_pt,6);
   //  
-  //  if ( dimuo_pt > 80. ) w_Zpt = 1.;
+  //  if ( dilep_pt > 80. ) w_Zpt = 1.;
   //
   //  MyWeight *= w_Zpt;
   //
-  //  //cout << dimuo_pt << " " <<  w_Zpt << endl;
+  //  //cout << dilep_pt << " " <<  w_Zpt << endl;
   //
   //}
 
@@ -1529,29 +1558,47 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
     reco::TrackKinematics vertexKinematics;
     reco::TrackKinematics allKinematics;
- 
-  
-  // --- Total momentum of the secondary vertex tracks:
+
+
+    // --- Total momentum of the secondary vertex tracks:
 
     for (unsigned int isvx=0; isvx<svTagInfos->nVertices(); ++isvx) {
 
       const reco::Vertex &vertex = svTagInfos->secondaryVertex(isvx);
-      bool hasRefittedTracks = vertex.hasRefittedTracks();
 
+      // Build the transient tracks:
+      vector<reco::TransientTrack> mytracks;
       for (reco::Vertex::trackRef_iterator track  = vertex.tracks_begin(); 
 	                                   track != vertex.tracks_end(); 
 	                                   ++track) {
 
 	double w = vertex.trackWeight(*track);
-
 	if (w < 0.5)
 	  continue;
-	if (hasRefittedTracks) {
-	  reco::Track actualTrack = vertex.refittedTrack(*track);
-	  vertexKinematics.add(actualTrack, w);
-	} else {
-	  vertexKinematics.add(**track, w);
-	}
+
+	reco::TransientTrack  transientTrack = (*transientTrackBuilder).build(**track); 
+	mytracks.push_back(transientTrack);
+
+      }
+      
+      // Refit the secondary vertex:
+      GlobalPoint seedPoint (vertex.x(),vertex.y(),vertex.z());
+
+      KalmanVertexFitter fitter(true);
+      TransientVertex myTransientVertex = fitter.vertex(mytracks, seedPoint);
+      reco::Vertex myVertex = myTransientVertex;
+
+      // Get the refitted tracks:
+      bool hasRefittedTracks = myVertex.hasRefittedTracks();
+      reco::TrackCollection refTrks = myVertex.refittedTracks();
+      
+      for (reco::TrackCollection::iterator track  = refTrks.begin(); 
+	                                   track != refTrks.end(); 
+	                                   ++track) {
+	if (hasRefittedTracks)
+	  vertexKinematics.add(*track, 1.);
+	else 
+	  throw cms::Exception("NoRefittedTracks") << "No refitted tracks" << endl;
       }
       
     }
@@ -1563,7 +1610,7 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     double vertexPt2 = math::XYZVector(dir.x(), dir.y(), dir.z()).Cross(vtxTrkMom).Mag2() / dir.mag2();
     SecVtx_mass_corr = std::sqrt(SecVtx_mass*SecVtx_mass + vertexPt2) + std::sqrt(vertexPt2);
 
-
+    
     // --- Total momentum of all jet tracks:
 
     const edm::RefVector<reco::TrackCollection> &tracks = ipTagInfos->selectedTracks();
@@ -1652,7 +1699,6 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
     }
     else {
 
-      //if ( n_b>0 && n_c==0 ){
       if ( n_b>0 ){
       
 	hc_M_b->Fill(dilep_mass, MyWeight*scalFac_b);
@@ -1675,6 +1721,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_svxM_b->Fill(SecVtx_mass,  MyWeight*scalFac_b); 
 	hc_svxM_corr_b->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
 	hc_svxEfr_b->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
+
+	hc_sample_b->Fill(fabs(vect_cjets[0].partonFlavour()),MyWeight*scalFac_b);
      
       }
       else if ( n_b==0 && n_c>0 ){
@@ -1700,6 +1748,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_svxM_corr_c->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
 	hc_svxEfr_c->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
 
+	hc_sample_c->Fill(fabs(vect_cjets[0].partonFlavour()),MyWeight*scalFac_b);
+
       }
       else if ( n_b==0 && n_c==0 ){
       
@@ -1723,6 +1773,8 @@ void ZcAnalyzer::produce (edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	hc_svxM_l->Fill(SecVtx_mass,  MyWeight*scalFac_b);
 	hc_svxM_corr_l->Fill(SecVtx_mass_corr,  MyWeight*scalFac_b);
 	hc_svxEfr_l->Fill(SecVtx_efrac,  MyWeight*scalFac_b);
+
+	hc_sample_l->Fill(fabs(vect_cjets[0].partonFlavour()),MyWeight*scalFac_b);
 
       }
 

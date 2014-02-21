@@ -16,4 +16,5 @@
 <use name="PhysicsTools/PatUtils"/>
 <use name="PhysicsTools/Utilities"/>
 <use name="RecoBTag/SecondaryVertex"/>
+<use name="RecoVertex/KalmanVertexFit"/>
 <flags EDM_PLUGIN="1"/>
