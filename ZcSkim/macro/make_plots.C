@@ -35,7 +35,6 @@ const double mc_lumi[] = { 31200./57709905.,    // Wj
 			   225.197/6923750.,    // ttbar
 			   3503.71/30459503. }; // DY
 
-
 // =============================================================================================================
 
 
@@ -48,7 +47,7 @@ void make_plots(const TString h_name="h_M", const bool log_scale=true, const boo
 
   const int channels_to_plot = 3;
 
-  const TString version = "v06";
+  const TString version = "v12";
 
   const TString path    = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/" + version;
 

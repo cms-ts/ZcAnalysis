@@ -9,7 +9,7 @@ import math
 #channel = "TTbar"
 #channel = 'WW'
 
-path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v01/"
+path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v10/"
 
 w = {'Wj'        : 31200./57709905.,
      'WW'        : 54.838/10000431.,
@@ -65,8 +65,8 @@ def main():
                         n_ee   += float(line.split()[4])
                         err_ee += float(line.split()[5])
                     else:
-                        n_ee   += float(line.split()[4])
-                        err_ee += float(line.split()[5])
+                        n_ee   += float(line.split()[5])
+                        err_ee += float(line.split()[6])
 
                 if counter==2:
                     print counter, line.split()
@@ -74,8 +74,8 @@ def main():
                         n_mm   += float(line.split()[4])
                         err_mm += float(line.split()[5])
                     else:
-                        n_mm   += float(line.split()[4])
-                        err_mm += float(line.split()[5])
+                        n_mm   += float(line.split()[5])
+                        err_mm += float(line.split()[6])
 
                 if counter==3:
                     print counter, line.split()
@@ -83,8 +83,8 @@ def main():
                         n_em   += float(line.split()[4])
                         err_em += float(line.split()[5])
                     else:
-                        n_em   += float(line.split()[4])
-                        err_em += float(line.split()[5])
+                        n_em   += float(line.split()[5])
+                        err_em += float(line.split()[6])
                         
 
         f.close()

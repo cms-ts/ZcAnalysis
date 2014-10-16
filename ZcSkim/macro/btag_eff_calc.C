@@ -66,7 +66,7 @@ TH2F * histo_rebin(TH2F *h, const int nx, const Double_t *xbins, const int ny, c
 
 void btag_eff_calc(const TString flavour="b", const TString tagger="CSVL",const bool rebin=false){
 
-  const TString path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v01/";
+  const TString path = "/gpfs/cms/users/casarsa/analysis/Zc/work/output/v10/";
   const TString filename = "DYJetsToLL.root";
 
 
